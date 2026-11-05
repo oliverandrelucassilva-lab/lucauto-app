@@ -29,6 +29,7 @@ export interface ParagrafoModelo {
   alinhamento: "justificado" | "centro" | "esquerda" | "direita";
   negrito: boolean; // parágrafo inteiro em negrito
   prefixoNegrito: string; // trecho inicial em negrito (ex.: "3.1. ")
+  runs: { texto: string; negrito: boolean; italico: boolean }[]; // pedaços com o mesmo estilo
   recuo: number; // recuo da esquerda em pontos
   recuoPrimeiraLinha: number;
 }
@@ -43,10 +44,12 @@ export function paragrafosDoModelo(slug: string): ParagrafoModelo[] {
     const runs = (p.match(/<w:r(?:\s[^>]*)?>[\s\S]*?<\/w:r>/g) ?? [])
       .map((r) => {
         const t = r.match(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/);
-        const negrito = /<w:b\/>|<w:b w:val="(1|true)"\/>/.test(r.split("</w:rPr>")[0] ?? "");
-        return t ? { texto: decod(t[1]), negrito } : null;
+        const props = r.split("</w:rPr>")[0] ?? "";
+        const negrito = /<w:b\/>|<w:b w:val="(1|true)"\/>/.test(props);
+        const italico = /<w:i\/>|<w:i w:val="(1|true)"\/>/.test(props);
+        return t ? { texto: decod(t[1]), negrito, italico } : null;
       })
-      .filter((r): r is { texto: string; negrito: boolean } => r !== null);
+      .filter((r): r is { texto: string; negrito: boolean; italico: boolean } => r !== null);
     const texto = runs.map((r) => r.texto).join("");
     const jc = /<w:jc w:val="(\w+)"/.exec(p)?.[1];
     const ind = /<w:ind ([^>]*)\/>/.exec(p)?.[1] ?? "";
@@ -61,6 +64,7 @@ export function paragrafosDoModelo(slug: string): ParagrafoModelo[] {
       alinhamento: jc === "center" ? "centro" : jc === "right" ? "direita" : jc === "both" ? "justificado" : "esquerda",
       negrito: runs.length > 0 && runs.every((r) => r.negrito),
       prefixoNegrito: prefixo === texto ? "" : prefixo,
+      runs,
       recuo: num("left"),
       recuoPrimeiraLinha: num("firstLine"),
     });

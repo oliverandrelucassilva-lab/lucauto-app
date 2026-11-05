@@ -1,13 +1,13 @@
 "use client";
 import { AlertCircle, Check, ChevronLeft, ChevronRight, Download, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { PreviaPaginada } from "@/components/contratos/PreviaPaginada";
 import { Botao } from "@/components/ui/Botao";
 import { Cartao } from "@/components/ui/Cartao";
 import type { ConfigEmpresa } from "@/config/empresa";
-import { ETAPAS_MOLDE_1, ROTULOS_EMPRESA, TODOS_CAMPOS, type Campo } from "@/lib/contratos/campos";
+import { ETAPAS_MOLDE_1, type Campo } from "@/lib/contratos/campos";
 import { montarDados } from "@/lib/contratos/dados";
 import type { ParagrafoModelo } from "@/lib/contratos/modelo";
-import { preencherTexto } from "@/lib/contratos/previa";
 
 interface Props {
   slug: string;
@@ -20,13 +20,6 @@ interface Pronto { docx: string; pdf: string | null; pendencias: string[]; demo:
 
 const TITULOS = [...ETAPAS_MOLDE_1.map((e) => e.titulo), "Revisar"];
 const REVISAR = ETAPAS_MOLDE_1.length;
-
-// Nome amigável de cada marcador, usado nos trechos pendentes da prévia.
-const ROTULOS: Record<string, string> = {
-  ...Object.fromEntries(TODOS_CAMPOS.map((c) => [c.chave, c.rotulo])),
-  ...ROTULOS_EMPRESA,
-  valor_extenso: "Valor por extenso",
-};
 
 export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props) {
   const [valores, setValores] = useState(inicial);
@@ -162,22 +155,8 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
       </div>
 
       <section aria-label="Prévia do contrato" className={`${etapa === REVISAR ? "" : "hidden"} min-w-0 lg:block lg:sticky lg:top-6`}>
-        <div className="max-h-[calc(100dvh-3rem)] overflow-auto rounded-[14px] border border-linha bg-slate-100 p-3 sm:p-4">
-          <div className="folha mx-auto max-w-[820px]">
-            {paragrafos.map((p, i) => {
-              if (!p.texto.trim()) return <div key={i} className="h-3" />;
-              const prefixo = p.prefixoNegrito && p.texto.startsWith(p.prefixoNegrito) ? p.prefixoNegrito : "";
-              const trechos = preencherTexto(p.texto.slice(prefixo.length), dados, ROTULOS);
-              return (
-                <p key={i} style={{ textAlign: p.alinhamento === "centro" ? "center" : p.alinhamento === "direita" ? "right" : p.alinhamento === "justificado" ? "justify" : "left", fontWeight: p.negrito ? 700 : 400, marginLeft: p.recuo, textIndent: p.recuoPrimeiraLinha, whiteSpace: "pre-line" }}>
-                  {prefixo && <b>{prefixo}</b>}
-                  {trechos.map((t, j) => (t.pendente ? <mark key={j}>{t.texto}</mark> : <span key={j}>{t.texto}</span>))}
-                </p>
-              );
-            })}
-          </div>
-        </div>
-        <p className="mt-2 text-xs text-suave">Os trechos em amarelo ainda precisam ser preenchidos. O Word e o PDF saem com cabeçalho, marca d&apos;água e rodapé do modelo da Lucauto.</p>
+        <PreviaPaginada slug={slug} paragrafos={paragrafos} dados={dados} />
+        <p className="mt-2 text-xs text-suave">Prévia com o fundo do modelo da Lucauto (logo, marca d&apos;água e rodapé). O que falta aparece em amarelo. A divisão das páginas é aproximada: o Word e o PDF baixados são o documento oficial.</p>
       </section>
     </div>
   );
