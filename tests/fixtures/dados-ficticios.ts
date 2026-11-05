@@ -27,3 +27,12 @@ export const ENTRADA_FICTICIA: Record<string, string> = {
 
 export const EMPRESA_PENDENTE: ConfigEmpresa = { cnpj: null, creciJuridico: null, corretoraNome: "POLLYANA MALTA MARQUES CUNHA", corretoraCreci: null };
 export const EMPRESA_PREENCHIDA: ConfigEmpresa = { cnpj: "00.000.000/0001-00", creciJuridico: "J-0000", corretoraNome: "POLLYANA MALTA MARQUES CUNHA", corretoraCreci: "00000-F" };
+
+/** Dados para a validação visual: descrição do mesmo tamanho da do exemplo do Word original,
+ *  para os dois documentos terem o mesmo fluxo de páginas. Tudo fictício. */
+export const ENTRADA_VALIDACAO: Record<string, string> = {
+  ...ENTRADA_FICTICIA,
+  imovel_descricao:
+    "Casa de teste de dois pavimentos, com área total de 300m² e área construída de 180m². Possui 3 quartos (sendo 1 suíte), 2 banheiros sociais, sala de estar e jantar integradas, cozinha planejada, área de serviço, varanda, garagem coberta para 2 veículos e quintal amplo. Piso em porcelanato, acabamento moderno e excelente estado de conservação.",
+  imovel_localizacao: "Bairro Exemplo, próximo ao centro comercial e escolas",
+};
