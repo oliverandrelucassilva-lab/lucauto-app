@@ -6,13 +6,18 @@ import { ROTULOS_EMPRESA, todosCampos } from "@/lib/contratos/campos";
 import { montarDados } from "@/lib/contratos/dados";
 import { DEFINICOES } from "@/lib/contratos/definicoes";
 import { ENTRADAS, EMPRESA_PREENCHIDA } from "./fixtures/dados-ficticios";
-import { paragrafosXml } from "./helpers";
+import { paragrafosXml, textosDoDocx } from "./helpers";
 
 const raiz = path.resolve(__dirname, "..");
 const abrir = (pasta: string, slug: string) => new PizZip(fs.readFileSync(path.join(raiz, "moldes", pasta, `${slug}.docx`)));
 
 // Restos de exemplo e datas antigas que não podem sobrar em nenhum modelo.
 const PROIBIDOS = ["25.487", "360m²", "07 de novembro de 2025", "01 de dezembro de 2025", "07 de janeiro de 2026", "digite o valor", "48450-000", "XX/XX/XXX", "(Adicionar segundo fiador"];
+
+// Palavras que se repetem de propósito (blocos opcionais clonados do próprio modelo, como o 2º fiador).
+const PERMITIDAS: Record<string, string[]> = {
+  "4_contrato_locacao_residencial": ["fiador", "rg", "nº", "cpf", "residente", "em", "mail", "e"],
+};
 
 describe.each(DEFINICOES.map((d) => [d.slug, d] as const))("modelo %s × Word original", (slug, def) => {
   const original = abrir("originais", slug);
@@ -42,6 +47,20 @@ describe.each(DEFINICOES.map((d) => [d.slug, d] as const))("modelo %s × Word or
     expect(alterados).toBeLessThanOrEqual(Math.ceil(o.length * 0.25));
     // e a quantidade de parágrafos que sumiram é só a dos transformados
     expect(m.length).toBeGreaterThanOrEqual(o.length - 1);
+  });
+
+  it("Ctrl+C Ctrl+V: o modelo não acrescenta nenhuma palavra ao texto do original", () => {
+    const palavras = (zip: PizZip, tirarMarcadores: boolean) => {
+      let txt = textosDoDocx(Buffer.from(zip.generate({ type: "nodebuffer" }))).join(" ");
+      if (tirarMarcadores) txt = txt.replace(/\{[^}]*\}/g, " ");
+      const bag = new Map<string, number>();
+      for (const w of txt.toLowerCase().match(/[\p{L}\p{N}º]+/gu) ?? []) bag.set(w, (bag.get(w) ?? 0) + 1);
+      return bag;
+    };
+    const o = palavras(original, false);
+    const m = palavras(modelo, true);
+    const novas = [...m].filter(([w, n]) => n > (o.get(w) ?? 0) && !(PERMITIDAS[slug] ?? []).includes(w)).map(([w]) => w);
+    expect(novas).toEqual([]);
   });
 
   it("restos de exemplo e datas antigas saíram", () => {

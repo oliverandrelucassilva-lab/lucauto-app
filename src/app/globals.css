@@ -44,3 +44,6 @@ body { background: var(--color-fundo); color: var(--color-tinta); font-family: v
 /* Prévia do Word (docx-preview): páginas A4 sobre fundo cinza */
 .previa-docx .docx-wrapper { background: transparent !important; padding: 16px 0 !important; }
 .previa-docx .docx-wrapper > section.docx { box-shadow: 0 1px 6px rgba(15, 23, 42, 0.18); margin-bottom: 16px !important; }
+
+/* Página do formulário de contrato: mais larga, para a prévia ficar maior */
+main:has(> [data-largo]) { max-width: 1600px; }

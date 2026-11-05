@@ -15,7 +15,7 @@ export const ENTRADA_FICTICIA: Record<string, string> = {
   proprietario_telefone: "(00) 90000-0000",
   proprietario_email: "maria@exemplo.test",
   imovel_descricao: "Casa de teste com dois quartos, sala, cozinha e quintal.",
-  imovel_localizacao: "Bairro Exemplo",
+  imovel_localizacao: "no bairro Exemplo",
   imovel_matricula: "00.000",
   imovel_cartorio: "1º Cartório",
   valor: "350.000,00",
@@ -34,7 +34,7 @@ export const ENTRADA_VALIDACAO: Record<string, string> = {
   ...ENTRADA_FICTICIA,
   imovel_descricao:
     "Casa de teste de dois pavimentos, com área total de 300m² e área construída de 180m². Possui 3 quartos (sendo 1 suíte), 2 banheiros sociais, sala de estar e jantar integradas, cozinha planejada, área de serviço, varanda, garagem coberta para 2 veículos e quintal amplo. Piso em porcelanato, acabamento moderno e excelente estado de conservação.",
-  imovel_localizacao: "Bairro Exemplo, próximo ao centro comercial e escolas",
+  imovel_localizacao: "no bairro Exemplo, próximo ao centro comercial e escolas",
 };
 
 /** Entradas completas e fictícias de cada molde pronto (usadas pelos testes genéricos). */

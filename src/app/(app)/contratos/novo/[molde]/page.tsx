@@ -21,7 +21,7 @@ export default async function NovoContrato(props: PageProps<"/contratos/novo/[mo
   const def = definicaoPorSlug(slug);
   if (!molde?.ativo || !def) notFound();
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-largo>
       <Link href="/contratos" className="inline-flex h-11 items-center gap-1 text-sm font-medium text-suave hover:text-tinta"><ChevronLeft size={16} strokeWidth={1.75} aria-hidden="true" />Gerador de PDFs</Link>
       <CabecalhoPagina titulo={molde.titulo} descricao="Preencha em etapas curtas e acompanhe o contrato ficando pronto na prévia." />
       <FormularioContrato slug={molde.slug} etapas={def.etapas} temFundo={def.temFundo} linhas={def.linhasPorPagina} paragrafos={paragrafosDoModelo(molde.slug)} inicial={valoresIniciais(molde.slug, hojeISO())} empresa={configEmpresa()} />

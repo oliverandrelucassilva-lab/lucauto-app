@@ -110,6 +110,6 @@ export const pessoaComEndereco = (pre, { nacionalidade = false } = {}) =>
 
 /** Marcador de pessoa, para os moldes "residente e domiciliado (a) na cidade de ..." (RG opcional). */
 export const pessoaPorCidade = (pre) =>
-  `{${pre}_nome}, {${pre}_estado_civil}, {${pre}_profissao}, nascido(a) em {${pre}_nascimento}, ` +
+  `{${pre}_nome}, {${pre}_estado_civil}, {${pre}_profissao}, {${pre}_nascimento}, ` +
   `{#${pre}_rg}RG sob o nº {${pre}_rg} e {/${pre}_rg}CPF de nº {${pre}_cpf}, residente e domiciliado (a) na cidade de {${pre}_cidade}, {${pre}_uf}, ` +
-  `CEP: {${pre}_cep}, telefone: {${pre}_telefone}, e-mail: {${pre}_email}.`;
+  `CEP: {${pre}_cep}, telefone: {${pre}_telefone}, e-mail: {${pre}_email}`;

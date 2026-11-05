@@ -92,7 +92,7 @@ export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, par
 
   const atual = ETAPAS[etapa];
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,370px)_minmax(0,1fr)] lg:items-start">
       <div className="min-w-0 space-y-4">
         {/* Barra de progresso */}
         <nav aria-label="Etapas" className="space-y-3">
@@ -168,7 +168,7 @@ export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, par
         </Cartao>
       </div>
 
-      <section aria-label="Prévia do contrato" className={`${etapa === REVISAR ? "" : "hidden"} min-w-0 lg:block lg:sticky lg:top-6`}>
+      <section aria-label="Prévia do contrato" className={`${etapa === REVISAR ? "" : "hidden"} min-w-0 lg:block lg:sticky lg:top-4`}>
         <PreviaPaginada slug={slug} paragrafos={paragrafos} dados={dados} rotulos={rotulos} linhas={linhas} temFundo={temFundo} />
         <p className="mt-2 text-xs text-suave">Prévia com o fundo do modelo da Lucauto (logo, marca d&apos;água e rodapé). O que falta aparece em amarelo. A divisão das páginas é aproximada: o Word e o PDF baixados são o documento oficial.</p>
       </section>

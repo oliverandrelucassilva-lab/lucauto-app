@@ -26,18 +26,18 @@ describe("Word preenchido (molde 1)", () => {
 
   it("proprietário completo, com RG", () => {
     const t = achar(gerar(), "Maria Exemplo");
-    expect(t).toBe("Maria Exemplo de Teste, solteira, professora, nascido(a) em 01/02/1980, RG sob o nº 00.000.000-00 e CPF de nº 111.444.777-35, residente e domiciliado (a) na cidade de Cidade Exemplo, Bahia, CEP: 00000-000, telefone: (00) 90000-0000, e-mail: maria@exemplo.test.");
+    expect(t).toBe("Maria Exemplo de Teste, solteira, professora, 01/02/1980, RG sob o nº 00.000.000-00 e CPF de nº 111.444.777-35, residente e domiciliado (a) na cidade de Cidade Exemplo, Bahia, CEP: 00000-000, telefone: (00) 90000-0000, e-mail: maria@exemplo.test");
   });
 
   it("RG em branco: o trecho do RG some", () => {
     const t = achar(gerar({ proprietario_rg: "" }), "Maria Exemplo");
-    expect(t).toContain("nascido(a) em 01/02/1980, CPF de nº 111.444.777-35");
+    expect(t).toContain("professora, 01/02/1980, CPF de nº 111.444.777-35");
     expect(t).not.toContain("RG");
   });
 
   it("imóvel preenchido, sem o exemplo antigo", () => {
     const todo = gerar().join("\n");
-    expect(todo).toContain("Casa de teste com dois quartos, sala, cozinha e quintal. Localizado em Bairro Exemplo. Imóvel matriculado sob o nº 00.000 do 1º Cartório de Registro de Imóveis de Euclides da Cunha/BA.");
+    expect(todo).toContain("Casa de teste com dois quartos, sala, cozinha e quintal. Localizada no bairro Exemplo. Imóvel matriculado sob o nº 00.000 do 1º Cartório de Registro de Imóveis de Euclides da Cunha/BA.");
     expect(todo).not.toContain("360m²");
     expect(todo).not.toContain("25.487");
   });
@@ -69,8 +69,8 @@ describe("Word preenchido (molde 1)", () => {
 
   it("dados da empresa pendentes aparecem como [A CONFIRMAR]", () => {
     const todo = gerar({}, EMPRESA_PENDENTE).join("\n");
-    expect(todo).toContain("CNPJ nº [A CONFIRMAR], CRECI Jurídico nº [A CONFIRMAR]");
-    expect(todo).toContain("CREC nº: [A CONFIRMAR].");
+    expect(todo).toContain("CNPJ nº [A CONFIRMAR] CRECI Jurídico nº [A CONFIRMAR]");
+    expect(todo).toContain("CREC nº: [A CONFIRMAR]");
   });
 
   it("caracteres especiais não quebram o Word", () => {

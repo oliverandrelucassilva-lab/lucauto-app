@@ -105,7 +105,7 @@ export const campoMatricula = (): Campo =>
 
 export const camposImovelPadrao = (): Campo[] => [
   C({ chave: "imovel_descricao", rotulo: "Características do imóvel", tipo: "area", obrigatorio: true, dica: "Tipo, áreas, cômodos e acabamento. Descreva este imóvel." }),
-  C({ chave: "imovel_localizacao", rotulo: "Localização", tipo: "texto", obrigatorio: true, dica: "Bairro, povoado ou fazenda." }),
+  C({ chave: "imovel_localizacao", rotulo: "Localização", tipo: "texto", obrigatorio: true, dica: "Escreva como no modelo, começando por \"no bairro\", \"no povoado\" ou \"na fazenda\". Ex.: no bairro Centro, próximo à praça." }),
   campoMatricula(),
   C({ chave: "imovel_cartorio", rotulo: "Cartório", tipo: "texto", obrigatorio: true, padrao: "1º Cartório", sugestoes: "cartorio" }),
 ];
