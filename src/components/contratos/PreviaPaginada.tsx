@@ -40,6 +40,7 @@ export function PreviaPaginada({ slug, paragrafos: todos, dados, rotulos = {}, l
   const paragrafos = visiveis(todos, dados);
   const caixa = useRef<HTMLDivElement>(null);
   const fluxo = useRef<HTMLDivElement>(null);
+  const rolagem = useRef<HTMLDivElement>(null);
   const [disponivel, setDisponivel] = useState(PAGINA_L + 24); // largura livre para a prévia
   const [manual, setManual] = useState<number | null>(null); // zoom escolhido nos botões
   const [cheia, setCheia] = useState(false);
@@ -66,6 +67,12 @@ export function PreviaPaginada({ slug, paragrafos: todos, dados, rotulos = {}, l
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", esc); document.body.style.overflow = ""; };
   }, [cheia]);
+
+  // Quando o zoom passa da largura disponível, mantém a página centralizada (abre para os dois lados).
+  useLayoutEffect(() => {
+    const r = rolagem.current;
+    if (r && r.scrollWidth > r.clientWidth) r.scrollLeft = (r.scrollWidth - r.clientWidth) / 2;
+  }, [escala, disponivel, cheia]);
 
   useLayoutEffect(() => {
     const medir = () => fluxo.current && setPaginas(Math.max(1, Math.ceil((fluxo.current.offsetHeight - 1) / ALTURA_CORPO)));
@@ -99,22 +106,20 @@ export function PreviaPaginada({ slug, paragrafos: todos, dados, rotulos = {}, l
   const arvore = (
     <div className={cheia ? "fixed inset-0 z-[60] flex flex-col bg-slate-100 p-3" : "w-full"}>
       <div ref={caixa} className={cheia ? "flex min-h-0 flex-1 flex-col" : "w-full"}>
-        {/* A moldura acompanha o tamanho da página: cresce e encolhe junto com o zoom */}
-        <div className={`${cheia ? "mx-auto flex min-h-0 flex-1 flex-col" : "flex flex-col"}`} style={{ width: Math.min(disponivel, PAGINA_L * escala + 24), maxWidth: "100%" }}>
-          <div className="flex items-center justify-between gap-2 px-1 pb-2 pt-0.5" role="toolbar" aria-label="Controles da prévia">
-            <span className="text-xs font-semibold text-suave">{cheia ? "Prévia do contrato" : "Prévia"}</span>
-            <div className="flex items-center gap-1.5">
-              <button type="button" className={botao} onClick={() => passo(-0.1)} aria-label="Diminuir o zoom"><Minus size={16} strokeWidth={1.75} /></button>
-              <button type="button" className="h-9 min-w-14 rounded-lg border border-slate-300 bg-white px-2 text-xs font-semibold hover:bg-slate-50" onClick={() => setManual(null)} aria-label="Voltar ao tamanho padrão">{Math.round(escala * 100)}%</button>
-              <button type="button" className={botao} onClick={() => passo(0.1)} aria-label="Aumentar o zoom"><Plus size={16} strokeWidth={1.75} /></button>
-              <button type="button" className={`${botao} ml-1`} onClick={() => { setCheia((v) => !v); setManual(null); }} aria-label={cheia ? "Sair da tela cheia" : "Ver em tela cheia"}>
-                {cheia ? <Minimize2 size={16} strokeWidth={1.75} /> : <Maximize2 size={16} strokeWidth={1.75} />}
-              </button>
-            </div>
-          </div>
-          <div className={`${cheia ? "min-h-0 flex-1" : "max-h-[calc(100dvh-8rem)]"} overflow-auto rounded-[14px] border border-linha bg-slate-200/70 p-3`}>
-            <div style={{ height: (paginas * (PAGINA_A + GAP) - GAP) * escala, width: PAGINA_L * escala, margin: "0 auto" }}>
-              <div style={{ width: PAGINA_L, transform: `scale(${escala})`, transformOrigin: "top left" }}>
+        {/* Botões parados no centro do topo: não se mexem quando o zoom muda */}
+        <div className="flex items-center justify-center gap-1.5 pb-2 pt-0.5" role="toolbar" aria-label="Controles da prévia">
+          <button type="button" className={botao} onClick={() => passo(-0.1)} aria-label="Diminuir o zoom"><Minus size={16} strokeWidth={1.75} /></button>
+          <button type="button" className="h-9 w-16 rounded-lg border border-slate-300 bg-white text-xs font-semibold hover:bg-slate-50" onClick={() => setManual(null)} aria-label="Voltar ao tamanho padrão">{Math.round(escala * 100)}%</button>
+          <button type="button" className={botao} onClick={() => passo(0.1)} aria-label="Aumentar o zoom"><Plus size={16} strokeWidth={1.75} /></button>
+          <button type="button" className={`${botao} ml-1`} onClick={() => { setCheia((v) => !v); setManual(null); }} aria-label={cheia ? "Sair da tela cheia" : "Ver em tela cheia"}>
+            {cheia ? <Minimize2 size={16} strokeWidth={1.75} /> : <Maximize2 size={16} strokeWidth={1.75} />}
+          </button>
+        </div>
+        {/* A moldura "abre" a partir do centro, junto com a página */}
+        <div className={cheia ? "flex min-h-0 flex-1 flex-col" : ""} style={{ width: Math.min(disponivel, PAGINA_L * escala + 24), maxWidth: "100%", margin: "0 auto", transition: "width 180ms ease" }}>
+          <div ref={rolagem} className={`${cheia ? "min-h-0 flex-1" : "max-h-[calc(100dvh-8rem)]"} overflow-auto rounded-[14px] border border-linha bg-slate-200/70 p-3`}>
+            <div style={{ height: (paginas * (PAGINA_A + GAP) - GAP) * escala, width: PAGINA_L * escala, margin: "0 auto", transition: "width 180ms ease, height 180ms ease" }}>
+              <div style={{ width: PAGINA_L, transform: `scale(${escala})`, transformOrigin: "top left", transition: "transform 180ms ease" }}>
                 {Array.from({ length: paginas }, (_, k) => (
                   <div key={k} role="img" aria-label={`Página ${k + 1} de ${paginas} do contrato`} style={{ position: "relative", width: PAGINA_L, height: PAGINA_A, marginBottom: k < paginas - 1 ? GAP : 0, background: temFundo ? `#fff url(/previa/${slug}.png) center / 100% 100% no-repeat` : "#fff", boxShadow: "0 1px 6px rgba(15,23,42,.18)", overflow: "hidden" }}>
                     <div style={{ position: "absolute", left: ESQUERDA, top: TOPO, width: LARGURA, height: ALTURA_CORPO, overflow: "hidden" }}>
