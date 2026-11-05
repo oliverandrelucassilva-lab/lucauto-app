@@ -16,8 +16,8 @@ export interface Definicao {
   etapas: Etapa[];
   /** Campo com o nome do cliente (para o histórico). */
   clienteChave: string;
-  /** Campo de dinheiro principal (para o histórico). */
-  valorChave: string;
+  /** Campo de dinheiro principal (para o histórico). Moldes sem valor em dinheiro não têm. */
+  valorChave?: string;
   /** O Word tem logo, marca d'água e rodapé (a prévia desenha esse fundo). */
   temFundo: boolean;
   /** Linhas de texto que cabem em cada página (calibrado no PDF do original). */

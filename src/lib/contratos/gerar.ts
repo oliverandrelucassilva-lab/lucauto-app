@@ -40,7 +40,7 @@ export async function gerarContrato(slug: string, entrada: Entrada, opcoes: { pd
   return {
     docx, pdf, dados, pendenciasEmpresa,
     titulo: `${def.titulo} — ${dados[def.clienteChave]}`,
-    valorCentavos: lerValor(dados[def.valorChave]) ?? 0,
+    valorCentavos: def.valorChave ? (lerValor(dados[def.valorChave]) ?? 0) : 0,
     tipoImovel: entrada.tipo_imovel === "rural" ? "rural" : entrada.tipo_imovel === "urbano" ? "urbano" : null,
     dataAssinatura: entrada.data_assinatura ?? "",
   };

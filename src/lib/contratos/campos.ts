@@ -72,7 +72,7 @@ export function pessoaPorCidade(p: string, grupo?: string): Campo[] {
 }
 
 /** Pessoa no formato "RG nº, CPF nº, residente em [endereço], e-mail" (RG e endereço opcionais). */
-export function pessoaComEndereco(p: string, grupo: string, opcoes: { nacionalidade?: boolean; dependeDe?: string } = {}): Campo[] {
+export function pessoaComEndereco(p: string, grupo: string, opcoes: { nacionalidade?: boolean; dependeDe?: string; telefone?: boolean } = {}): Campo[] {
   const dep = opcoes.dependeDe;
   const lista: Campo[] = [
     C({ chave: `${p}_nome`, rotulo: "Nome completo", tipo: "texto", obrigatorio: !dep }),
@@ -82,6 +82,7 @@ export function pessoaComEndereco(p: string, grupo: string, opcoes: { nacionalid
     rgCampo(p),
     cpfCampo(p),
     C({ chave: `${p}_endereco`, rotulo: "Endereço completo", tipo: "texto", obrigatorio: false, dica: "Rua, número, bairro e cidade. Pode ficar em branco: o trecho do endereço sai do contrato." }),
+    ...(opcoes.telefone ? [C({ chave: `${p}_telefone`, rotulo: "Telefone", tipo: "telefone" as const, obrigatorio: true, mascara: "telefone" as const, dica: "Só números, com DDD.", erroInvalido: "Telefone inválido. Digite só números, com DDD (ex.: (75) 99999-9999)." })] : []),
     emailCampo(p),
   ];
   return lista.map((c, i) => ({ ...c, grupo: i === 0 ? grupo : undefined, dependeDe: i === 0 ? undefined : dep }));

@@ -125,3 +125,7 @@ export const editarImobiliaria = (p) => {
   p = substituir(p, "CNPJ nº CRECI Jurídico nº", "CNPJ nº {empresa_cnpj} CRECI Jurídico nº {empresa_creci}");
   return substituir(p, "POLLYANA MALTA MARQUES CUNHA, CREC nº:", "{corretora_nome}, CREC nº: {corretora_creci}");
 };
+
+/** Pessoa do molde 3: "NOME, estado civil, profissão, RG nº, CPF nº, endereço completo, telefone, e-mail" (RG e endereço opcionais). */
+export const pessoaLocador = (pre) =>
+  `{${pre}_nome}, {${pre}_estado_civil}, {${pre}_profissao}, {#${pre}_rg}RG nº {${pre}_rg}, {/${pre}_rg}CPF nº {${pre}_cpf}, {#${pre}_endereco}{${pre}_endereco}, {/${pre}_endereco}telefone {${pre}_telefone}, e-mail {${pre}_email}`;

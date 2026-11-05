@@ -72,7 +72,15 @@ export const ENTRADA_SINAL: Record<string, string> = {
   sinal: "10.000,00", banco: "Banco Exemplo", agencia: "0000", favorecido: "Vendedora Exemplo de Teste", valor: "350.000,00", data_assinatura: "2026-11-05",
 };
 
+/** Intermediação de locação (molde 3), tudo fictício. */
+export const ENTRADA_INTERMEDIACAO_LOCACAO: Record<string, string> = {
+  locador_nome: "Locador Exemplo de Teste", locador_estado_civil: "casado(a)", locador_profissao: "comerciante", locador_rg: "00.000.000-00", locador_cpf: "111.444.777-35",
+  locador_endereco: "Rua Exemplo, 100, Bairro Teste, Cidade Exemplo", locador_telefone: "(00) 90000-0000", locador_email: "locador@exemplo.test",
+  imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, com 2 quartos, sala, cozinha e quintal, área de 200m²", data_assinatura: "2026-11-05",
+};
+
 export const ENTRADAS: Record<string, Record<string, string>> = {
+  "3_intermediacao_locacao_com_exclusividade": ENTRADA_INTERMEDIACAO_LOCACAO,
   "5_sinal_e_reserva_venda_sem_escritura": ENTRADA_SINAL,
   "6_compra_e_venda": ENTRADA_COMPRA_VENDA,
   "1_intermediacao_com_exclusividade": ENTRADA_FICTICIA,
@@ -82,6 +90,7 @@ export const ENTRADAS: Record<string, Record<string, string>> = {
 /** Dados para a validação visual de cada molde: textos do mesmo tamanho dos exemplos do Word original,
  *  para os dois documentos terem o mesmo fluxo de páginas. Tudo fictício. */
 export const VALIDACAO: Record<string, Record<string, string>> = {
+  "3_intermediacao_locacao_com_exclusividade": { ...ENTRADA_INTERMEDIACAO_LOCACAO, imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, com 2 quartos" },
   "5_sinal_e_reserva_venda_sem_escritura": { ...ENTRADA_SINAL, imovel_endereco: "Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA" },
   "6_compra_e_venda": { ...ENTRADA_COMPRA_VENDA, imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, com 2 quartos e quintal" },
   "1_intermediacao_com_exclusividade": ENTRADA_VALIDACAO,
