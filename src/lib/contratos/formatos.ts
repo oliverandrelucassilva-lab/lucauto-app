@@ -34,13 +34,14 @@ export function mascaraCpf(txt: string): string {
 /** RG, matrícula e agência: só números e a pontuação comum (. - /). Letras são apagadas. */
 export const mascaraNumerica = (txt: string) => txt.replace(/[^\d.\-/\s]/g, "").replace(/\s+/g, " ");
 
-export type Mascara = "telefone" | "cep" | "cpf" | "numerico";
+export type Mascara = "telefone" | "cep" | "cpf" | "numerico" | "digitos";
 export function aplicarMascara(m: Mascara | undefined, txt: string): string {
   switch (m) {
     case "telefone": return mascaraTelefone(txt);
     case "cep": return mascaraCep(txt);
     case "cpf": return mascaraCpf(txt);
     case "numerico": return mascaraNumerica(txt);
+    case "digitos": return soDigitos(txt).slice(0, 3);
     default: return txt;
   }
 }

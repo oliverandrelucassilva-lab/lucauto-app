@@ -3,8 +3,10 @@ import { montarDados } from "@/lib/contratos/dados";
 import { mascaraCep, mascaraCpf, mascaraNumerica, mascaraTelefone, normalizar } from "@/lib/contratos/formatos";
 import { ENTRADA_FICTICIA, EMPRESA_PREENCHIDA } from "./fixtures/dados-ficticios";
 
+const SLUG = "1_intermediacao_com_exclusividade";
+
 const problemas = (extra: Record<string, string>) =>
-  montarDados({ ...ENTRADA_FICTICIA, ...extra }, EMPRESA_PREENCHIDA).problemas.map((p) => `${p.chave}:${p.motivo}`);
+  montarDados(SLUG, { ...ENTRADA_FICTICIA, ...extra }, EMPRESA_PREENCHIDA).problemas.map((p) => `${p.chave}:${p.motivo}`);
 
 describe("campos numéricos só aceitam números", () => {
   it.each([
@@ -31,7 +33,7 @@ describe("campos numéricos só aceitam números", () => {
   });
 
   it("telefone e CEP saem formatados no contrato", () => {
-    const { dados } = montarDados({ ...ENTRADA_FICTICIA, proprietario_telefone: "75999991234", proprietario_cep: "48500000" }, EMPRESA_PREENCHIDA);
+    const { dados } = montarDados(SLUG, { ...ENTRADA_FICTICIA, proprietario_telefone: "75999991234", proprietario_cep: "48500000" }, EMPRESA_PREENCHIDA);
     expect(dados.proprietario_telefone).toBe("(75) 99999-1234");
     expect(dados.proprietario_cep).toBe("48500-000");
   });

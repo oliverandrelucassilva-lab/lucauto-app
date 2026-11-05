@@ -27,3 +27,5 @@ export const BANCOS = [
 ];
 
 export const CARTORIOS = ["1º Cartório", "2º Cartório"];
+
+export const NACIONALIDADES = ["brasileiro(a)", "estrangeiro(a)"];

@@ -11,7 +11,7 @@ import { textosDoDocx } from "./helpers";
 
 const SLUG = "1_intermediacao_com_exclusividade";
 const gerar = (extra: Record<string, string> = {}, empresa = EMPRESA_PREENCHIDA) => {
-  const { dados, problemas } = montarDados({ ...ENTRADA_FICTICIA, ...extra }, empresa);
+  const { dados, problemas } = montarDados(SLUG, { ...ENTRADA_FICTICIA, ...extra }, empresa);
   expect(problemas).toEqual([]);
   return textosDoDocx(gerarDocx(SLUG, dados));
 };
@@ -90,7 +90,7 @@ const temPoppler = spawnSync("pdftotext", ["-v"]).status === 0;
 
 describe.skipIf(!temLibreOffice || !temPoppler)("PDF do molde 1", () => {
   it("converte para PDF com cabeçalho, marca d'água e rodapé em todas as páginas", async () => {
-    const { dados } = montarDados(ENTRADA_FICTICIA, EMPRESA_PREENCHIDA);
+    const { dados } = montarDados(SLUG, ENTRADA_FICTICIA, EMPRESA_PREENCHIDA);
     const pdf = await converterParaPdf(gerarDocx(SLUG, dados));
     const arq = path.join(os.tmpdir(), `teste-${process.pid}.pdf`);
     fs.writeFileSync(arq, pdf);

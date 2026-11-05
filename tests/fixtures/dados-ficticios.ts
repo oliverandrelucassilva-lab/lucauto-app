@@ -36,3 +36,32 @@ export const ENTRADA_VALIDACAO: Record<string, string> = {
     "Casa de teste de dois pavimentos, com área total de 300m² e área construída de 180m². Possui 3 quartos (sendo 1 suíte), 2 banheiros sociais, sala de estar e jantar integradas, cozinha planejada, área de serviço, varanda, garagem coberta para 2 veículos e quintal amplo. Piso em porcelanato, acabamento moderno e excelente estado de conservação.",
   imovel_localizacao: "Bairro Exemplo, próximo ao centro comercial e escolas",
 };
+
+/** Entradas completas e fictícias de cada molde pronto (usadas pelos testes genéricos). */
+const pessoa = (pre: string, nome: string, cpf: string) => ({
+  [`${pre}_nome`]: nome, [`${pre}_estado_civil`]: "solteiro(a)", [`${pre}_profissao`]: "comerciante", [`${pre}_rg`]: "00.000.000-00",
+  [`${pre}_cpf`]: cpf, [`${pre}_endereco`]: "Rua Exemplo, 100, Bairro Teste, Cidade Exemplo", [`${pre}_email`]: `${pre}@exemplo.test`,
+});
+
+/** Locação residencial (molde 4), tudo fictício. */
+export const ENTRADA_LOCACAO: Record<string, string> = {
+  ...pessoa("locador", "Locador Exemplo de Teste", "111.444.777-35"),
+  ...pessoa("locatario", "Locatária Exemplo de Teste", "529.982.247-25"),
+  ...pessoa("fiador", "Fiador Exemplo de Teste", "390.533.447-05"),
+  fiador_nacionalidade: "brasileiro(a)",
+  fiador2_nome: "", fiador2_nacionalidade: "", fiador2_estado_civil: "", fiador2_profissao: "", fiador2_rg: "", fiador2_cpf: "", fiador2_endereco: "", fiador2_email: "",
+  imovel_endereco: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA, com 2 quartos, sala, cozinha e quintal",
+  prazo_meses: "12", data_inicio: "2026-11-05", data_fim: "", aluguel: "1.250,50", dia_vencimento: "5", data_assinatura: "2026-11-05",
+};
+
+export const ENTRADAS: Record<string, Record<string, string>> = {
+  "1_intermediacao_com_exclusividade": ENTRADA_FICTICIA,
+  "4_contrato_locacao_residencial": ENTRADA_LOCACAO,
+};
+
+/** Dados para a validação visual de cada molde: textos do mesmo tamanho dos exemplos do Word original,
+ *  para os dois documentos terem o mesmo fluxo de páginas. Tudo fictício. */
+export const VALIDACAO: Record<string, Record<string, string>> = {
+  "1_intermediacao_com_exclusividade": ENTRADA_VALIDACAO,
+  "4_contrato_locacao_residencial": { ...ENTRADA_LOCACAO, imovel_endereco: "Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA, casa com 2 quartos" },
+};

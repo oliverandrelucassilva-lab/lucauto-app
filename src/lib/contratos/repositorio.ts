@@ -12,7 +12,7 @@ export interface RegistroContrato {
   workspaceId: string;
   molde: string;
   titulo: string;
-  tipoImovel: "urbano" | "rural";
+  tipoImovel: "urbano" | "rural" | null;
   valorCentavos: number;
   dataAssinatura: string; // AAAA-MM-DD
   criadoPor: string;

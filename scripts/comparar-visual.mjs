@@ -14,12 +14,13 @@ for (const d of ["original", "gerado", "painel"]) fs.mkdirSync(path.join(saida, 
 const { montarDados } = await import("../src/lib/contratos/dados.ts");
 const { gerarDocx } = await import("../src/lib/contratos/modelo.ts");
 const { converterParaPdf } = await import("../src/lib/contratos/converter-pdf.ts");
-const { ENTRADA_VALIDACAO, EMPRESA_PREENCHIDA } = await import("../tests/fixtures/dados-ficticios.ts");
+const { VALIDACAO, EMPRESA_PREENCHIDA } = await import("../tests/fixtures/dados-ficticios.ts");
 
 execFileSync("soffice", ["--headless", "--convert-to", "pdf", "--outdir", path.join(saida, "original"), path.join(raiz, `moldes/originais/${slug}.docx`)], { stdio: "ignore" });
 execFileSync("pdftoppm", ["-r", "80", "-png", path.join(saida, "original", `${slug}.pdf`), path.join(saida, "original", "p")]);
 
-const { dados } = montarDados({ ...ENTRADA_VALIDACAO }, EMPRESA_PREENCHIDA);
+const { dados, problemas } = montarDados(slug, { ...VALIDACAO[slug] }, EMPRESA_PREENCHIDA);
+if (problemas.length) throw new Error("Dados de validação incompletos: " + problemas.map((p) => p.chave).join(", "));
 const docx = gerarDocx(slug, dados);
 fs.writeFileSync(path.join(saida, "gerado", `${slug}.docx`), docx);
 fs.writeFileSync(path.join(saida, "gerado", `${slug}.pdf`), await converterParaPdf(docx));
@@ -37,7 +38,7 @@ for i in range(max(len(o), len(g))):
     base = a or b
     a = a or Image.new("RGB", base.size, "white"); b = b or Image.new("RGB", base.size, "white")
     diff = ImageChops.difference(a, b).convert("L").point(lambda v: 255 if v > 40 else 0)
-    pct = 100.0 * sum(1 for v in diff.getdata() if v) / (diff.width * diff.height)
+    pct = 100.0 * sum(1 for v in diff.tobytes() if v) / (diff.width * diff.height)
     over = b.copy(); red = Image.new("RGB", b.size, (220, 38, 38)); over.paste(red, mask=diff)
     W = a.width * 3 + 40
     im = Image.new("RGB", (W, a.height + 30), (110, 110, 110))

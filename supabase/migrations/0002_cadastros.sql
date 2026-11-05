@@ -56,7 +56,7 @@ create table public.contratos (
   workspace_id      uuid not null references public.workspaces(id) on delete restrict,
   molde             text not null check (molde ~ '^[1-6]_[a-z_]+$'),
   titulo            text not null,
-  tipo_imovel       public.tipo_imovel not null,
+  tipo_imovel       public.tipo_imovel, -- só nos moldes que têm comissão por tipo de imóvel
   imovel_id         uuid references public.imoveis(id),
   partes            jsonb not null default '[]'::jsonb, -- [{papel, pessoa_id}]
   valor_centavos    bigint not null check (valor_centavos >= 0),

@@ -1,19 +1,22 @@
 "use client";
 import { AlertCircle, Check, ChevronLeft, ChevronRight, Download, Loader2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { PreviaPaginada } from "@/components/contratos/PreviaPaginada";
 import { Botao } from "@/components/ui/Botao";
 import { Combobox, type Opcao } from "@/components/ui/Combobox";
 import { Cartao } from "@/components/ui/Cartao";
 import type { ConfigEmpresa } from "@/config/empresa";
-import { ETAPAS_MOLDE_1, type Campo } from "@/lib/contratos/campos";
+import type { Campo, Etapa } from "@/lib/contratos/campos";
 import { montarDados } from "@/lib/contratos/dados";
 import { aplicarMascara, normalizar } from "@/lib/contratos/formatos";
-import { BANCOS, CARTORIOS, ESTADO_CIVIL, ESTADOS, PROFISSOES } from "@/lib/contratos/sugestoes";
+import { BANCOS, CARTORIOS, ESTADO_CIVIL, ESTADOS, NACIONALIDADES, PROFISSOES } from "@/lib/contratos/sugestoes";
 import type { ParagrafoModelo } from "@/lib/contratos/modelo";
 
 interface Props {
   slug: string;
+  etapas: Etapa[];
+  temFundo: boolean;
+  linhas: number;
   paragrafos: ParagrafoModelo[];
   inicial: Record<string, string>;
   empresa: ConfigEmpresa;
@@ -21,10 +24,15 @@ interface Props {
 
 interface Pronto { docx: string; pdf: string | null; pendencias: string[]; demo: boolean }
 
-const TITULOS = [...ETAPAS_MOLDE_1.map((e) => e.titulo), "Revisar"];
-const REVISAR = ETAPAS_MOLDE_1.length;
-
-export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props) {
+export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, paragrafos, inicial, empresa }: Props) {
+  const TITULOS = [...ETAPAS.map((e) => e.titulo), "Revisar"];
+  const REVISAR = ETAPAS.length;
+  // nome amigável de cada marcador, para os trechos pendentes da prévia
+  const rotulos = useMemo(() => {
+    const r: Record<string, string> = {};
+    for (const c of ETAPAS.flatMap((e) => e.campos)) { r[c.chave] = c.rotulo; if (c.tipo === "dinheiro") r[`${c.chave}_extenso`] = `${c.rotulo} por extenso`; }
+    return r;
+  }, [ETAPAS]);
   const [valores, setValores] = useState(inicial);
   const [etapa, setEtapa] = useState(0);
   const [tocados, setTocados] = useState<Set<string>>(new Set());
@@ -32,14 +40,14 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
   const [erro, setErro] = useState("");
   const [pronto, setPronto] = useState<Pronto | null>(null);
 
-  const { dados, problemas, pendenciasEmpresa } = useMemo(() => montarDados(valores, empresa), [valores, empresa]);
+  const { dados, problemas, pendenciasEmpresa, sugeridos } = useMemo(() => montarDados(slug, valores, empresa), [slug, valores, empresa]);
   const problemaDe = (chave: string) => problemas.find((p) => p.chave === chave);
   const mudar = (chave: string, v: string) => { setValores((x) => ({ ...x, [chave]: v })); setPronto(null); setErro(""); };
   const tocar = (...chaves: string[]) => setTocados((s) => new Set([...s, ...chaves]));
-  const etapaDoCampo = (chave: string) => ETAPAS_MOLDE_1.findIndex((e) => e.campos.some((c) => c.chave === chave));
+  const etapaDoCampo = (chave: string) => ETAPAS.findIndex((e) => e.campos.some((c) => c.chave === chave));
 
   function continuar() {
-    const atual = ETAPAS_MOLDE_1[etapa];
+    const atual = ETAPAS[etapa];
     tocar(...atual.campos.map((c) => c.chave));
     const faltam = problemas.filter((p) => atual.campos.some((c) => c.chave === p.chave));
     if (faltam.length) { setErro(`Antes de continuar, corrija: ${faltam.map((p) => p.rotulo).join(", ")}.`); return; }
@@ -82,14 +90,14 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
     }
   }
 
-  const atual = ETAPAS_MOLDE_1[etapa];
+  const atual = ETAPAS[etapa];
   return (
     <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[minmax(0,460px)_minmax(0,1fr)] lg:items-start">
       <div className="min-w-0 space-y-4">
         {/* Barra de progresso */}
         <nav aria-label="Etapas" className="space-y-3">
           <p className="text-xs font-semibold text-suave">Etapa {etapa + 1} de {TITULOS.length} · <span className="text-tinta">{TITULOS[etapa]}</span></p>
-          <ol className="grid grid-cols-4 gap-2">
+          <ol className="grid gap-2" style={{ gridTemplateColumns: `repeat(${TITULOS.length}, minmax(0, 1fr))` }}>
             {TITULOS.map((t, i) => (
               <li key={t} aria-current={i === etapa ? "step" : undefined}>
                 <div className={`h-1.5 rounded-full transition-colors duration-150 ${i <= etapa ? "bg-dourado" : "bg-slate-200"}`} />
@@ -108,8 +116,11 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
               </div>
               <div className="space-y-4">
                 {atual.campos.map((c) => (
-                  <CampoForm key={c.chave} campo={c} valor={valores[c.chave] ?? ""} valores={valores} mudarOutro={mudar} extenso={c.tipo === "dinheiro" ? dados.valor_extenso : ""} comissao={c.tipo === "tipo_imovel" ? dados.comissao_pct : ""}
-                    erro={tocados.has(c.chave) ? problemaDe(c.chave)?.motivo : undefined} onChange={(v) => mudar(c.chave, aplicarMascara(c.mascara, v))} onBlur={() => tocar(c.chave)} />
+                  <Fragment key={c.chave}>
+                  {c.grupo && <h3 className="border-t border-linha pt-4 text-sm font-bold text-tinta first:border-0 first:pt-0">{c.grupo}</h3>}
+                  <CampoForm sugerido={sugeridos[c.chave]} campo={c} valor={valores[c.chave] ?? ""} valores={valores} mudarOutro={mudar} extenso={c.tipo === "dinheiro" ? dados.valor_extenso : ""} comissao={c.tipo === "tipo_imovel" ? dados.comissao_pct : ""}
+                    erro={tocados.has(c.chave) ? problemaDe(c.chave)?.motivo : undefined} mensagem={tocados.has(c.chave) ? problemaDe(c.chave)?.mensagem : undefined} onChange={(v) => mudar(c.chave, aplicarMascara(c.mascara, v))} onBlur={() => tocar(c.chave)} />
+                  </Fragment>
                 ))}
               </div>
             </>
@@ -158,7 +169,7 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
       </div>
 
       <section aria-label="Prévia do contrato" className={`${etapa === REVISAR ? "" : "hidden"} min-w-0 lg:block lg:sticky lg:top-6`}>
-        <PreviaPaginada slug={slug} paragrafos={paragrafos} dados={dados} />
+        <PreviaPaginada slug={slug} paragrafos={paragrafos} dados={dados} rotulos={rotulos} linhas={linhas} temFundo={temFundo} />
         <p className="mt-2 text-xs text-suave">Prévia com o fundo do modelo da Lucauto (logo, marca d&apos;água e rodapé). O que falta aparece em amarelo. A divisão das páginas é aproximada: o Word e o PDF baixados são o documento oficial.</p>
       </section>
     </div>
@@ -189,7 +200,7 @@ function filtrar(itens: Opcao[], consulta: string, max = 8): Opcao[] {
 
 const comoOpcoes = (l: string[]): Opcao[] => l.map((valor) => ({ valor }));
 
-function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, erro, onChange, onBlur }: { campo: Campo; valor: string; valores: Record<string, string>; mudarOutro: (chave: string, v: string) => void; extenso: string; comissao: string; erro?: "faltando" | "invalido"; onChange: (v: string) => void; onBlur: () => void }) {
+function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, sugerido, erro, mensagem, onChange, onBlur }: { mensagem?: string; sugerido?: string; campo: Campo; valor: string; valores: Record<string, string>; mudarOutro: (chave: string, v: string) => void; extenso: string; comissao: string; erro?: "faltando" | "invalido"; onChange: (v: string) => void; onBlur: () => void }) {
   const [municipios, setMunicipios] = useState<Municipio[]>(cacheMunicipios ?? []);
   const id = `campo-${campo.chave}`;
   const comum = { id, value: valor, onBlur, "aria-invalid": erro ? true : undefined, "aria-describedby": `${id}-dica`, onChange: (e: { target: { value: string } }) => onChange(e.target.value) } as const;
@@ -202,9 +213,10 @@ function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, erro,
       case "banco": return filtrar(comoOpcoes(BANCOS), q);
       case "cartorio": return filtrar(comoOpcoes(CARTORIOS), q);
       case "estado": return filtrar(ESTADOS.map((e) => ({ valor: e.nome, detalhe: e.uf })), q, 10);
-      case "favorecido": return valores.proprietario_nome?.trim() ? filtrar([{ valor: valores.proprietario_nome.trim(), detalhe: "proprietário" }], q.trim() === valores.proprietario_nome.trim() ? "" : q) : [];
+      case "nacionalidade": return filtrar(comoOpcoes(NACIONALIDADES), q);
+      case "favorecido": { const nome = valores[campo.sugestaoDe ?? ""]?.trim(); return nome ? filtrar([{ valor: nome, detalhe: "nome já digitado" }], q.trim() === nome ? "" : q) : []; }
       case "cidade": {
-        const ufAtual = ESTADOS.find((e) => normalizar(e.nome) === normalizar(valores.proprietario_uf ?? ""))?.uf;
+        const ufAtual = ESTADOS.find((e) => normalizar(e.nome) === normalizar(valores[campo.chave.replace(/_cidade$/, "_uf")] ?? ""))?.uf;
         const nq = normalizar(q);
         if (nq.length < 2) return [];
         // cidades do estado escolhido primeiro, depois as de outros estados
@@ -228,6 +240,16 @@ function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, erro,
         ))}
       </div>
     );
+  } else if (campo.tipo === "opcoes") {
+    entrada = (
+      <div role="radiogroup" aria-label={campo.rotulo} className="grid gap-2 sm:grid-cols-2">
+        {campo.opcoes?.map((o) => (
+          <label key={o.valor} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-[10px] border border-slate-300 bg-white px-3 py-2 text-sm font-medium has-[:checked]:border-dourado has-[:checked]:bg-dourado/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-dourado">
+            <input type="radio" name={campo.chave} value={o.valor} checked={valor === o.valor} onChange={() => onChange(o.valor)} className="accent-dourado" />{o.rotulo}
+          </label>
+        ))}
+      </div>
+    );
   } else if (campo.sugestoes) {
     entrada = (
       <Combobox id={id} value={valor} onChange={onChange} buscar={buscar} invalido={!!erro} descritoPor={`${id}-dica`} onBlur={onBlur}
@@ -235,30 +257,31 @@ function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, erro,
         onFocar={() => { if (campo.sugestoes === "cidade" && !cacheMunicipios) carregarMunicipios().then(setMunicipios); else if (campo.sugestoes === "cidade") setMunicipios(cacheMunicipios!); }}
         onEscolher={(o) => {
           // escolher a cidade preenche o estado sozinho
-          if (campo.sugestoes === "cidade" && typeof o.dados === "string") { const e = ESTADOS.find((x) => x.uf === o.dados); if (e) mudarOutro("proprietario_uf", e.nome); }
+          if (campo.sugestoes === "cidade" && typeof o.dados === "string") { const e = ESTADOS.find((x) => x.uf === o.dados); if (e) mudarOutro(campo.chave.replace(/_cidade$/, "_uf"), e.nome); }
         }} />
     );
   } else if (campo.tipo === "area") {
     entrada = <textarea {...comum} rows={5} className="campo" />;
   } else {
     const tipo = campo.tipo === "data" ? "date" : campo.tipo === "email" ? "email" : "text";
-    const modo = campo.tipo === "dinheiro" ? "decimal" : ["cpf", "telefone", "cep", "numero"].includes(campo.tipo) ? "numeric" : undefined;
+    const modo = campo.tipo === "dinheiro" ? "decimal" : ["cpf", "telefone", "cep", "numero", "inteiro"].includes(campo.tipo) ? "numeric" : undefined;
     const hoje = new Date().toISOString().slice(0, 10);
     const limites = campo.chave === "proprietario_nascimento" ? { min: "1900-01-01", max: hoje } : campo.tipo === "data" ? { min: "2000-01-01" } : {};
     entrada = <input {...comum} {...limites} type={tipo} inputMode={modo} autoComplete={campo.tipo === "email" ? "email" : "off"} className="campo" />;
   }
   return (
     <div>
-      {campo.tipo === "tipo_imovel" ? (
+      {campo.tipo === "tipo_imovel" || campo.tipo === "opcoes" ? (
         <span className="mb-1.5 block text-sm font-medium text-tinta">{campo.rotulo}</span>
       ) : (
-        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-tinta">{campo.rotulo}{!campo.obrigatorio && <span className="font-normal text-suave"> (opcional)</span>}</label>
+        <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-tinta">{campo.rotulo}{(!campo.obrigatorio || campo.dependeDe) && <span className="font-normal text-suave"> (opcional)</span>}</label>
       )}
       {entrada}
       {extenso && <p className="mt-1.5 text-sm font-medium text-slate-700">{extenso}</p>}
       {comissao && <p className="mt-1.5 text-xs text-suave">Comissão deste contrato: {comissao}%.</p>}
+      {sugerido && !valor && <p className="mt-1.5 text-xs font-medium text-slate-700">Calculado automaticamente: {sugerido.split("-").reverse().join("/")}. Preencha só se quiser outra data.</p>}
       <p id={`${id}-dica`} className={`mt-1.5 text-xs ${erro ? "text-red-600" : "text-suave"}`}>
-        {erro === "faltando" ? `Preencha o campo ${campo.rotulo}.` : erro === "invalido" ? (campo.erroInvalido ?? `Confira o campo ${campo.rotulo}: o valor não parece correto.`) : campo.dica ?? ""}
+        {erro === "faltando" ? `Preencha o campo ${campo.rotulo}.` : erro === "invalido" ? (mensagem ?? campo.erroInvalido ?? `Confira o campo ${campo.rotulo}: o valor não parece correto.`) : campo.dica ?? ""}
       </p>
     </div>
   );

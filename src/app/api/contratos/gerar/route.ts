@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { obterSessao } from "@/lib/auth/sessao";
 import { modoDemo } from "@/lib/auth/mock";
 import { podeAcessar } from "@/lib/auth/permissoes";
-import { lerValor } from "@/lib/contratos/extenso";
 import { DadosIncompletos, gerarContrato } from "@/lib/contratos/gerar";
 import { moldePorSlug } from "@/lib/contratos/moldes";
 import { repositorio } from "@/lib/contratos/repositorio";
@@ -34,10 +33,10 @@ export async function POST(req: Request) {
     if (!g.pdf) throw new Error("PDF não gerado");
     const registro = await repositorio().salvar(sessao, {
       molde: molde.slug,
-      titulo: `${molde.titulo} — ${g.dados.proprietario_nome}`,
-      tipoImovel: g.dados.tipo_imovel === "rural" ? "rural" : "urbano",
-      valorCentavos: lerValor(g.dados.valor) ?? 0,
-      dataAssinatura: corpo.dados.data_assinatura,
+      titulo: g.titulo,
+      tipoImovel: g.tipoImovel,
+      valorCentavos: g.valorCentavos,
+      dataAssinatura: g.dataAssinatura,
       pendenciasEmpresa: g.pendenciasEmpresa,
       dados: g.dados,
       docx: g.docx,

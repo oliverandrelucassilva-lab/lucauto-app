@@ -29,3 +29,16 @@ export function dataCurta(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   return m ? `${m[3]}/${m[2]}/${m[1]}` : "";
 }
+
+const diasNoMes = (ano: number, mes0: number) => new Date(Date.UTC(ano, mes0 + 1, 0)).getUTCDate();
+
+/** Data final de um contrato por meses: início + N meses - 1 dia. ("2026-11-05", 12) -> "2027-11-04" */
+export function fimDoPrazo(inicioISO: string, meses: number): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(inicioISO);
+  if (!m || !Number.isInteger(meses) || meses < 1) return null;
+  const alvo = Number(m[2]) - 1 + meses;
+  const ano = Number(m[1]) + Math.floor(alvo / 12), mes0 = ((alvo % 12) + 12) % 12;
+  const dia = Math.min(Number(m[3]), diasNoMes(ano, mes0));
+  const fim = new Date(Date.UTC(ano, mes0, dia) - 86400000);
+  return fim.toISOString().slice(0, 10);
+}

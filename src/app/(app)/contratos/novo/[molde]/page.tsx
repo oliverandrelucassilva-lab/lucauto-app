@@ -6,6 +6,7 @@ import { CabecalhoPagina } from "@/components/ui/CabecalhoPagina";
 import { configEmpresa } from "@/config/empresa";
 import { exigirModulo } from "@/lib/auth/sessao";
 import { valoresIniciais } from "@/lib/contratos/dados";
+import { definicaoPorSlug } from "@/lib/contratos/definicoes";
 import { paragrafosDoModelo } from "@/lib/contratos/modelo";
 import { moldePorSlug } from "@/lib/contratos/moldes";
 import { hojeISO } from "@/lib/contratos/regras";
@@ -17,12 +18,13 @@ export default async function NovoContrato(props: PageProps<"/contratos/novo/[mo
   await exigirModulo("contratos");
   const { molde: slug } = await props.params;
   const molde = moldePorSlug(slug);
-  if (!molde?.ativo) notFound();
+  const def = definicaoPorSlug(slug);
+  if (!molde?.ativo || !def) notFound();
   return (
     <div className="space-y-6">
       <Link href="/contratos" className="inline-flex h-11 items-center gap-1 text-sm font-medium text-suave hover:text-tinta"><ChevronLeft size={16} strokeWidth={1.75} aria-hidden="true" />Gerador de PDFs</Link>
-      <CabecalhoPagina titulo={molde.titulo} descricao="Preencha em 4 etapas curtas e acompanhe o contrato ficando pronto na prévia." />
-      <FormularioContrato slug={molde.slug} paragrafos={paragrafosDoModelo(molde.slug)} inicial={valoresIniciais(hojeISO())} empresa={configEmpresa()} />
+      <CabecalhoPagina titulo={molde.titulo} descricao="Preencha em etapas curtas e acompanhe o contrato ficando pronto na prévia." />
+      <FormularioContrato slug={molde.slug} etapas={def.etapas} temFundo={def.temFundo} linhas={def.linhasPorPagina} paragrafos={paragrafosDoModelo(molde.slug)} inicial={valoresIniciais(molde.slug, hojeISO())} empresa={configEmpresa()} />
     </div>
   );
 }

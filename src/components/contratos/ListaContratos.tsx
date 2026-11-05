@@ -18,7 +18,7 @@ export function ListaContratos({ contratos }: { contratos: RegistroContrato[] })
             <div className="min-w-0 flex-1 basis-60">
               <p className="truncate text-sm font-semibold text-tinta">{cliente(c.titulo)}</p>
               <p className="text-xs text-suave">
-                {moldePorSlug(c.molde)?.titulo} · {c.tipoImovel === "rural" ? "Rural" : "Urbano"} · {dataCurta(c.dataAssinatura)}
+                {moldePorSlug(c.molde)?.titulo} · {c.tipoImovel ? (c.tipoImovel === "rural" ? "Rural · " : "Urbano · ") : ""}{dataCurta(c.dataAssinatura)}
               </p>
               {c.pendenciasEmpresa.length > 0 && <p className="mt-0.5 text-xs text-amber-700">Saiu com [A CONFIRMAR]: {c.pendenciasEmpresa.join(", ")}.</p>}
             </div>

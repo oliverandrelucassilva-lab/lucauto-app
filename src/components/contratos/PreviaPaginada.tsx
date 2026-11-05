@@ -1,29 +1,41 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ROTULOS_EMPRESA, TODOS_CAMPOS } from "@/lib/contratos/campos";
+import { ROTULOS_EMPRESA } from "@/lib/contratos/campos";
 import type { ParagrafoModelo } from "@/lib/contratos/modelo";
 import { preencherTexto } from "@/lib/contratos/previa";
 
 // Medidas da página do Word do molde (A4, Arial 12, espaço 1,5), em pixels a 96 dpi.
 const PAGINA_L = 794, PAGINA_A = 1123;
 const TOPO = 94.5, ESQUERDA = 113.4, LARGURA = 566.9;
-const LINHA = 27.6, LINHAS_POR_PAGINA = 31; // 31 linhas por página, como no original (o rodapé ocupa o resto)
-const ALTURA_CORPO = LINHA * LINHAS_POR_PAGINA;
+const LINHA = 27.6;
 // O LibreOffice/Word encolhem um pouco os espaços do texto justificado; isto imita o efeito.
 const ESPACO_PALAVRAS = process.env.NEXT_PUBLIC_ESPACO_PALAVRAS ?? "-0.12em";
 
-const ROTULOS: Record<string, string> = {
-  ...Object.fromEntries(TODOS_CAMPOS.map((c) => [c.chave, c.rotulo])),
-  ...ROTULOS_EMPRESA,
-  valor_extenso: "Valor por extenso",
-};
+const ROTULOS_FIXOS: Record<string, string> = { ...ROTULOS_EMPRESA };
+
+/** Tira da prévia os parágrafos de marcação ({#x} ... {/x}) e os blocos opcionais que não valem. */
+function visiveis(paragrafos: ParagrafoModelo[], dados: Record<string, string>): ParagrafoModelo[] {
+  const saida: ParagrafoModelo[] = [];
+  const pilha: boolean[] = [];
+  for (const p of paragrafos) {
+    const abre = /^\{#(\w+)\}$/.exec(p.texto.trim());
+    const fecha = /^\{\/(\w+)\}$/.exec(p.texto.trim());
+    if (abre) { pilha.push(!!dados[abre[1]]); continue; }
+    if (fecha) { pilha.pop(); continue; }
+    if (pilha.every(Boolean)) saida.push(p);
+  }
+  return saida;
+}
 
 /**
  * Prévia do contrato em páginas A4: o fundo (logo, marca d'água e rodapé) é o do próprio modelo
  * da Lucauto, e o texto do contrato vai por cima. A divisão das páginas é uma aproximação;
  * o Word e o PDF baixados são o documento oficial.
  */
-export function PreviaPaginada({ slug, paragrafos, dados }: { slug: string; paragrafos: ParagrafoModelo[]; dados: Record<string, string> }) {
+export function PreviaPaginada({ slug, paragrafos: todos, dados, rotulos = {}, linhas, temFundo }: { slug: string; paragrafos: ParagrafoModelo[]; dados: Record<string, string>; rotulos?: Record<string, string>; linhas: number; temFundo: boolean }) {
+  const ALTURA_CORPO = LINHA * linhas;
+  const ROTULOS = { ...ROTULOS_FIXOS, ...rotulos };
+  const paragrafos = visiveis(todos, dados);
   const caixa = useRef<HTMLDivElement>(null);
   const fluxo = useRef<HTMLDivElement>(null);
   const [escala, setEscala] = useState(1);
@@ -71,7 +83,7 @@ export function PreviaPaginada({ slug, paragrafos, dados }: { slug: string; para
       <div style={{ height: (paginas * (PAGINA_A + GAP) - GAP) * escala, width: PAGINA_L * escala, margin: "0 auto" }}>
         <div style={{ width: PAGINA_L, transform: `scale(${escala})`, transformOrigin: "top left" }}>
           {Array.from({ length: paginas }, (_, k) => (
-            <div key={k} role="img" aria-label={`Página ${k + 1} de ${paginas} do contrato`} style={{ position: "relative", width: PAGINA_L, height: PAGINA_A, marginBottom: k < paginas - 1 ? GAP : 0, background: `#fff url(/previa/${slug}.png) center / 100% 100% no-repeat`, boxShadow: "0 1px 6px rgba(15,23,42,.18)", overflow: "hidden" }}>
+            <div key={k} role="img" aria-label={`Página ${k + 1} de ${paginas} do contrato`} style={{ position: "relative", width: PAGINA_L, height: PAGINA_A, marginBottom: k < paginas - 1 ? GAP : 0, background: temFundo ? `#fff url(/previa/${slug}.png) center / 100% 100% no-repeat` : "#fff", boxShadow: "0 1px 6px rgba(15,23,42,.18)", overflow: "hidden" }}>
               <div style={{ position: "absolute", left: ESQUERDA, top: TOPO, width: LARGURA, height: ALTURA_CORPO, overflow: "hidden" }}>
                 <div ref={k === 0 ? fluxo : undefined} style={{ transform: `translateY(${-k * ALTURA_CORPO}px)` }}>{conteudo}</div>
               </div>
