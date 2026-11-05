@@ -40,6 +40,12 @@ const dataIsoValida = (iso: string) => {
   return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
 };
 
+/** 11144477735 -> 111.444.777-35 (se não tiver 11 dígitos, devolve como veio). */
+export function formatarCpf(txt: string): string {
+  const d = txt.replace(/\D/g, "");
+  return d.length === 11 ? `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9)}` : txt;
+}
+
 /** Valores iniciais do formulário (padrões e data de hoje). */
 export function valoresIniciais(hoje: string = hojeISO()): Record<string, string> {
   const v: Record<string, string> = {};
@@ -73,6 +79,7 @@ export function montarDados(entrada: Entrada, empresa: ConfigEmpresa): Resultado
   const dados: Record<string, string> = {
     ...limpo,
     proprietario_nascimento: dataCurta(limpo.proprietario_nascimento),
+    proprietario_cpf: formatarCpf(limpo.proprietario_cpf),
     valor: centavos ? formatarBRL(centavos) : "",
     valor_extenso: centavos ? valorPorExtenso(centavos) : "",
     comissao_pct: comissao.pct,

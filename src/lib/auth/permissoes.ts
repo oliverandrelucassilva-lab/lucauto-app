@@ -1,11 +1,11 @@
 import type { Perfil } from "./tipos";
 
-export type Modulo = "contratos" | "imoveis" | "painel" | "automacoes";
+export type Modulo = "contratos" | "imoveis" | "painel" | "automacoes" | "configuracoes";
 
 // Quem enxerga o quê. Espelha as regras de acesso do banco (supabase/migrations).
 // Marketing não acessa contratos nem dados pessoais.
 const ACESSO: Record<Perfil, Modulo[]> = {
-  gerente: ["contratos", "imoveis", "painel", "automacoes"],
+  gerente: ["contratos", "imoveis", "painel", "automacoes", "configuracoes"],
   corretor: ["contratos", "imoveis"],
   marketing: ["imoveis"],
 };

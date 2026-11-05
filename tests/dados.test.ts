@@ -56,6 +56,10 @@ describe("montarDados", () => {
     expect(v.tipo_imovel).toBe("urbano");
   });
 
+  it("CPF digitado sem pontos sai formatado", () => {
+    expect(montarDados({ ...ENTRADA_FICTICIA, proprietario_cpf: "11144477735" }, EMPRESA_PREENCHIDA).dados.proprietario_cpf).toBe("111.444.777-35");
+  });
+
   it("CPF", () => {
     expect(cpfValido("111.444.777-35")).toBe(true);
     expect(cpfValido("111.444.777-36")).toBe(false);

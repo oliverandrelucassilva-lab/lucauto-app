@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { notFound } from "next/navigation";
-import { Cabecalho } from "@/components/Cabecalho";
+import { CabecalhoPagina } from "@/components/ui/CabecalhoPagina";
 import { configEmpresa } from "@/config/empresa";
 import { exigirModulo } from "@/lib/auth/sessao";
 import { valoresIniciais } from "@/lib/contratos/dados";
@@ -13,18 +14,15 @@ import { FormularioContrato } from "./FormularioContrato";
 export const metadata: Metadata = { title: "Novo contrato" };
 
 export default async function NovoContrato(props: PageProps<"/contratos/novo/[molde]">) {
-  const sessao = await exigirModulo("contratos");
+  await exigirModulo("contratos");
   const { molde: slug } = await props.params;
   const molde = moldePorSlug(slug);
   if (!molde?.ativo) notFound();
   return (
-    <>
-      <Cabecalho sessao={sessao} />
-      <main className="mx-auto max-w-6xl px-4 py-6">
-        <nav className="mb-2 text-sm"><Link href="/contratos" className="underline">← Contratos</Link></nav>
-        <h1 className="font-display text-2xl font-bold sm:text-3xl">{molde.titulo}</h1>
-        <FormularioContrato slug={molde.slug} paragrafos={paragrafosDoModelo(molde.slug)} inicial={valoresIniciais(hojeISO())} empresa={configEmpresa()} />
-      </main>
-    </>
+    <div className="space-y-6">
+      <Link href="/contratos" className="inline-flex h-11 items-center gap-1 text-sm font-medium text-suave hover:text-tinta"><ChevronLeft size={16} strokeWidth={1.75} aria-hidden="true" />Gerador de PDFs</Link>
+      <CabecalhoPagina titulo={molde.titulo} descricao="Preencha em 4 etapas curtas e acompanhe o contrato ficando pronto na prévia." />
+      <FormularioContrato slug={molde.slug} paragrafos={paragrafosDoModelo(molde.slug)} inicial={valoresIniciais(hojeISO())} empresa={configEmpresa()} />
+    </div>
   );
 }

@@ -12,57 +12,61 @@ export interface Campo {
   dica?: string;
 }
 
-export interface GrupoCampos {
+export interface Etapa {
+  id: string;
   titulo: string;
+  descricao: string;
   campos: Campo[];
 }
 
-export const GRUPOS_MOLDE_1: GrupoCampos[] = [
+const C = (c: Campo) => c;
+
+export const ETAPAS_MOLDE_1: Etapa[] = [
   {
-    titulo: "Tipo do imóvel",
-    campos: [{ chave: "tipo_imovel", rotulo: "Tipo do imóvel", tipo: "tipo_imovel", obrigatorio: true, padrao: "urbano", dica: "A comissão do contrato muda sozinha: 5% urbano, 8% rural." }],
-  },
-  {
-    titulo: "Proprietário (contratante)",
+    id: "partes",
+    titulo: "Partes",
+    descricao: "Dados do proprietário (contratante).",
     campos: [
-      { chave: "proprietario_nome", rotulo: "Nome completo", tipo: "texto", obrigatorio: true },
-      { chave: "proprietario_estado_civil", rotulo: "Estado civil", tipo: "texto", obrigatorio: true, dica: "ex.: casado(a)" },
-      { chave: "proprietario_profissao", rotulo: "Profissão", tipo: "texto", obrigatorio: true },
-      { chave: "proprietario_nascimento", rotulo: "Data de nascimento", tipo: "data", obrigatorio: true },
-      { chave: "proprietario_rg", rotulo: "RG", tipo: "texto", obrigatorio: false, dica: "Pode ficar em branco: o trecho do RG sai do contrato." },
-      { chave: "proprietario_cpf", rotulo: "CPF", tipo: "cpf", obrigatorio: true },
-      { chave: "proprietario_cidade", rotulo: "Cidade", tipo: "texto", obrigatorio: true, padrao: "Euclides da Cunha" },
-      { chave: "proprietario_uf", rotulo: "Estado", tipo: "texto", obrigatorio: true, padrao: "Bahia" },
-      { chave: "proprietario_cep", rotulo: "CEP", tipo: "texto", obrigatorio: true },
-      { chave: "proprietario_telefone", rotulo: "Telefone", tipo: "telefone", obrigatorio: true },
-      { chave: "proprietario_email", rotulo: "E-mail", tipo: "email", obrigatorio: true },
+      C({ chave: "proprietario_nome", rotulo: "Nome completo", tipo: "texto", obrigatorio: true }),
+      C({ chave: "proprietario_estado_civil", rotulo: "Estado civil", tipo: "texto", obrigatorio: true, dica: "ex.: casado(a)" }),
+      C({ chave: "proprietario_profissao", rotulo: "Profissão", tipo: "texto", obrigatorio: true }),
+      C({ chave: "proprietario_nascimento", rotulo: "Data de nascimento", tipo: "data", obrigatorio: true }),
+      C({ chave: "proprietario_rg", rotulo: "RG", tipo: "texto", obrigatorio: false, dica: "Pode ficar em branco: o trecho do RG sai do contrato." }),
+      C({ chave: "proprietario_cpf", rotulo: "CPF", tipo: "cpf", obrigatorio: true }),
+      C({ chave: "proprietario_cidade", rotulo: "Cidade", tipo: "texto", obrigatorio: true, padrao: "Euclides da Cunha" }),
+      C({ chave: "proprietario_uf", rotulo: "Estado", tipo: "texto", obrigatorio: true, padrao: "Bahia" }),
+      C({ chave: "proprietario_cep", rotulo: "CEP", tipo: "texto", obrigatorio: true }),
+      C({ chave: "proprietario_telefone", rotulo: "Telefone", tipo: "telefone", obrigatorio: true }),
+      C({ chave: "proprietario_email", rotulo: "E-mail", tipo: "email", obrigatorio: true }),
     ],
   },
   {
+    id: "imovel",
     titulo: "Imóvel",
+    descricao: "Tipo, descrição e documentação do imóvel.",
     campos: [
-      { chave: "imovel_descricao", rotulo: "Características do imóvel", tipo: "area", obrigatorio: true, dica: "Tipo, áreas, cômodos e acabamento. Descreva este imóvel." },
-      { chave: "imovel_localizacao", rotulo: "Localização", tipo: "texto", obrigatorio: true, dica: "Bairro, povoado ou fazenda." },
-      { chave: "imovel_matricula", rotulo: "Matrícula nº", tipo: "texto", obrigatorio: true },
-      { chave: "imovel_cartorio", rotulo: "Cartório", tipo: "texto", obrigatorio: true, padrao: "1º Cartório" },
+      C({ chave: "tipo_imovel", rotulo: "Tipo do imóvel", tipo: "tipo_imovel", obrigatorio: true, padrao: "urbano", dica: "A comissão do contrato muda sozinha: 5% urbano, 8% rural." }),
+      C({ chave: "imovel_descricao", rotulo: "Características do imóvel", tipo: "area", obrigatorio: true, dica: "Tipo, áreas, cômodos e acabamento. Descreva este imóvel." }),
+      C({ chave: "imovel_localizacao", rotulo: "Localização", tipo: "texto", obrigatorio: true, dica: "Bairro, povoado ou fazenda." }),
+      C({ chave: "imovel_matricula", rotulo: "Matrícula nº", tipo: "texto", obrigatorio: true }),
+      C({ chave: "imovel_cartorio", rotulo: "Cartório", tipo: "texto", obrigatorio: true, padrao: "1º Cartório" }),
     ],
   },
   {
-    titulo: "Valor e sinal",
+    id: "valores",
+    titulo: "Valores",
+    descricao: "Valor do imóvel, dados bancários para o sinal e data da assinatura.",
     campos: [
-      { chave: "valor", rotulo: "Valor do imóvel (R$)", tipo: "dinheiro", obrigatorio: true, dica: "ex.: 350000 ou 350.000,00" },
-      { chave: "banco", rotulo: "Banco", tipo: "texto", obrigatorio: true },
-      { chave: "agencia", rotulo: "Agência", tipo: "texto", obrigatorio: true },
-      { chave: "favorecido", rotulo: "Favorecido", tipo: "texto", obrigatorio: true },
+      C({ chave: "valor", rotulo: "Valor do imóvel (R$)", tipo: "dinheiro", obrigatorio: true, dica: "ex.: 350000 ou 350.000,00" }),
+      C({ chave: "banco", rotulo: "Banco", tipo: "texto", obrigatorio: true }),
+      C({ chave: "agencia", rotulo: "Agência", tipo: "texto", obrigatorio: true }),
+      C({ chave: "favorecido", rotulo: "Favorecido", tipo: "texto", obrigatorio: true }),
+      C({ chave: "data_assinatura", rotulo: "Data da assinatura", tipo: "data", obrigatorio: true, padrao: "hoje", dica: "Já vem com a data de hoje; pode mudar." }),
     ],
-  },
-  {
-    titulo: "Data da assinatura",
-    campos: [{ chave: "data_assinatura", rotulo: "Data da assinatura", tipo: "data", obrigatorio: true, padrao: "hoje", dica: "Já vem com a data de hoje; pode mudar." }],
   },
 ];
 
-export const TODOS_CAMPOS: Campo[] = GRUPOS_MOLDE_1.flatMap((g) => g.campos);
+export const TODOS_CAMPOS: Campo[] = ETAPAS_MOLDE_1.flatMap((e) => e.campos);
 
 /** Rótulos dos marcadores que vêm da configuração da empresa (não do formulário). */
 export const ROTULOS_EMPRESA: Record<string, string> = {
