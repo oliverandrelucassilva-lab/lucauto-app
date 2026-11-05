@@ -1,7 +1,7 @@
 import { configEmpresa } from "@/config/empresa";
 import { definicaoPorSlug } from "./definicoes";
 import { montarDados, type Entrada, type Problema } from "./dados";
-import { converterParaPdf } from "./converter-pdf";
+import { converterParaPdf, pdfDisponivel } from "./converter-pdf";
 import { lerValor } from "./extenso";
 import { gerarDocx } from "./modelo";
 import { moldePorSlug } from "./moldes";
@@ -32,10 +32,12 @@ export async function gerarContrato(slug: string, entrada: Entrada, opcoes: { pd
   if (problemas.length) throw new DadosIncompletos(problemas);
   const docx = gerarDocx(slug, dados);
   let pdf: Buffer | null = null;
-  try {
-    pdf = await converterParaPdf(docx);
-  } catch (e) {
-    if (!opcoes.pdfOpcional) throw e;
+  if (pdfDisponivel()) {
+    try {
+      pdf = await converterParaPdf(docx);
+    } catch (e) {
+      if (!opcoes.pdfOpcional) throw e;
+    }
   }
   return {
     docx, pdf, dados, pendenciasEmpresa,

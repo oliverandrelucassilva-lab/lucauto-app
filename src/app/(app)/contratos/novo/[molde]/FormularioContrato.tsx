@@ -16,6 +16,8 @@ interface Props {
   slug: string;
   etapas: Etapa[];
   temFundo: boolean;
+  /** O serviço de PDF está ligado? Se não, só o Word é entregue. */
+  pdf: boolean;
   linhas: number;
   paragrafos: ParagrafoModelo[];
   inicial: Record<string, string>;
@@ -24,7 +26,7 @@ interface Props {
 
 interface Pronto { docx: string; pdf: string | null; pendencias: string[]; demo: boolean }
 
-export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, paragrafos, inicial, empresa }: Props) {
+export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, pdf: comPdf, linhas, paragrafos, inicial, empresa }: Props) {
   const TITULOS = [...ETAPAS.map((e) => e.titulo), "Revisar"];
   const REVISAR = ETAPAS.length;
   // nome amigável de cada marcador, para os trechos pendentes da prévia
@@ -79,7 +81,7 @@ export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, par
     try {
       const r = await gerar();
       const url = r && (formato === "docx" ? r.docx : r.pdf);
-      if (!url) { setErro("O PDF ainda não está disponível neste ambiente de demonstração. O Word foi gerado normalmente."); return; }
+      if (!url) { setErro("O PDF não está disponível agora. Baixe o Word e use \"Salvar como PDF\"."); return; }
       const a = document.createElement("a");
       a.href = url; a.download = `contrato.${formato}`;
       document.body.appendChild(a); a.click(); a.remove();
@@ -146,14 +148,17 @@ export function FormularioContrato({ slug, etapas: ETAPAS, temFundo, linhas, par
                 <p className="flex items-center gap-2 rounded-[10px] bg-emerald-50 p-4 text-sm font-medium text-emerald-800"><Check size={18} strokeWidth={1.75} aria-hidden="true" />Tudo preenchido. O contrato está pronto para baixar.</p>
               )}
               {pendenciasEmpresa.length > 0 && <p className="rounded-[10px] bg-slate-50 p-3 text-xs text-suave">Dados da empresa ainda a confirmar ({pendenciasEmpresa.join(", ")}). Eles saem como [A CONFIRMAR] no contrato.</p>}
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Botao variante="secundario" disabled={problemas.length > 0 || gerando !== null} onClick={() => baixar("docx")}>
+              <div className={`grid gap-3 ${comPdf ? "sm:grid-cols-2" : ""}`}>
+                <Botao variante={comPdf ? "secundario" : "primario"} disabled={problemas.length > 0 || gerando !== null} onClick={() => baixar("docx")}>
                   {gerando === "docx" ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Download size={18} strokeWidth={1.75} aria-hidden="true" />}Baixar Word
                 </Botao>
-                <Botao disabled={problemas.length > 0 || gerando !== null} onClick={() => baixar("pdf")}>
-                  {gerando === "pdf" ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Download size={18} strokeWidth={1.75} aria-hidden="true" />}Baixar PDF
-                </Botao>
+                {comPdf && (
+                  <Botao disabled={problemas.length > 0 || gerando !== null} onClick={() => baixar("pdf")}>
+                    {gerando === "pdf" ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Download size={18} strokeWidth={1.75} aria-hidden="true" />}Baixar PDF
+                  </Botao>
+                )}
               </div>
+              {!comPdf && <p className="rounded-[10px] bg-slate-50 p-3 text-xs text-suave">Para ter em PDF: abra o arquivo no Word e escolha <b>Arquivo → Salvar como → PDF</b> (no celular, <b>Compartilhar → Exportar como PDF</b>). O PDF sai igual ao contrato.</p>}
               {gerando && <p role="status" className="text-xs text-suave">Gerando o contrato… pode levar alguns segundos.</p>}
               {pronto?.demo && <p className="text-xs text-suave">Demonstração: este contrato não é guardado no histórico.</p>}
             </>

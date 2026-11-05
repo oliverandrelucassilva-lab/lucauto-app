@@ -7,7 +7,7 @@ import type { RegistroContrato } from "@/lib/contratos/repositorio";
 
 const cliente = (titulo: string) => titulo.split(" — ").slice(1).join(" — ") || titulo;
 
-export function ListaContratos({ contratos }: { contratos: RegistroContrato[] }) {
+export function ListaContratos({ contratos, pdf }: { contratos: RegistroContrato[]; pdf: boolean }) {
   if (contratos.length === 0)
     return <Cartao className="py-10 text-center text-suave">Nenhum contrato gerado ainda.</Cartao>;
   return (
@@ -24,7 +24,7 @@ export function ListaContratos({ contratos }: { contratos: RegistroContrato[] })
             </div>
             <div className="flex gap-2">
               <BotaoDownload href={`/api/contratos/${c.id}/docx`}><Download size={16} strokeWidth={1.75} aria-hidden="true" />Word</BotaoDownload>
-              <BotaoDownload href={`/api/contratos/${c.id}/pdf`}><Download size={16} strokeWidth={1.75} aria-hidden="true" />PDF</BotaoDownload>
+              {pdf && <BotaoDownload href={`/api/contratos/${c.id}/pdf`}><Download size={16} strokeWidth={1.75} aria-hidden="true" />PDF</BotaoDownload>}
             </div>
           </li>
         ))}

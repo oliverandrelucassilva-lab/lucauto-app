@@ -6,6 +6,7 @@ import { CabecalhoPagina } from "@/components/ui/CabecalhoPagina";
 import { Selo } from "@/components/ui/Selo";
 import { podeAcessar } from "@/lib/auth/permissoes";
 import { exigirSessao } from "@/lib/auth/sessao";
+import { pdfDisponivel } from "@/lib/contratos/converter-pdf";
 import { hojeISO } from "@/lib/contratos/regras";
 import { repositorio } from "@/lib/contratos/repositorio";
 
@@ -66,7 +67,7 @@ export default async function Inicio(props: PageProps<"/">) {
 
           <section aria-label="Últimos contratos gerados" className="space-y-3">
             <h2 className="text-base font-bold">Últimos contratos gerados</h2>
-            <ListaContratos contratos={contratos.slice(0, 5)} />
+            <ListaContratos contratos={contratos.slice(0, 5)} pdf={pdfDisponivel()} />
           </section>
         </>
       )}

@@ -67,7 +67,7 @@ As páginas que diferem são só as que têm campos preenchidos (o texto fictíc
 
 ## 6. O que falta construir / ligar
 1. **Supabase da Lucauto (projeto novo):** aplicar as migrações, desligar cadastro público, convite por e-mail, uma conta por pessoa, recuperação de senha, backup diário. Nunca pedir nem receber senha de ninguém.
-2. **PDF online:** precisa de um serviço de conversão (ver `docs/PDF_EM_PRODUCAO.md`). Hoje, online, só o Word é baixado.
+2. **PDF online:** por enquanto o app entrega só o Word (sem botão de PDF) e a pessoa usa "Salvar como PDF" no Word. O PDF automático precisa de um serviço de conversão (ver `docs/PDF_EM_PRODUCAO.md`) e pode ser ligado depois.
 3. **Salvar pessoas e imóveis cadastrados** para reaproveitar (módulo Imóveis, etapa 2: planilha do Google Sheets e fotos no Drive).
 4. Painel e Automações (n8n/Sofia): depois.
 5. Edição dos dados da empresa pela tela de Configurações (hoje é por variáveis de ambiente).

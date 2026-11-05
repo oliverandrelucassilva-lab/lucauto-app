@@ -64,7 +64,7 @@ create table public.contratos (
   dados             jsonb not null,
   pendencias        jsonb not null default '[]'::jsonb, -- dados da empresa que saíram [A CONFIRMAR]
   docx_path         text not null,
-  pdf_path          text not null,
+  pdf_path          text, -- vazio quando o PDF não foi gerado (só Word)
   criado_por        uuid not null references auth.users(id),
   criado_por_nome   text not null,
   criado_em         timestamptz not null default now()

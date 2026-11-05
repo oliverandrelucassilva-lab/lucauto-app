@@ -25,7 +25,7 @@ export interface NovoContrato extends Omit<RegistroContrato, "id" | "criadoEm" |
   /** Cópia dos dados preenchidos (guarda o que foi assinado). */
   dados: Record<string, string>;
   docx: Buffer;
-  pdf: Buffer;
+  pdf: Buffer | null; // sem PDF quando o serviço de conversão está desligado
 }
 
 export type Formato = "docx" | "pdf";
@@ -53,7 +53,7 @@ const repositorioLocal: RepositorioContratos = {
     await Promise.all([
       fs.writeFile(path.join(PASTA, `${registro.id}.json`), JSON.stringify({ ...registro, dados }, null, 2)),
       fs.writeFile(path.join(PASTA, `${registro.id}.docx`), docx),
-      fs.writeFile(path.join(PASTA, `${registro.id}.pdf`), pdf),
+      ...(pdf ? [fs.writeFile(path.join(PASTA, `${registro.id}.pdf`), pdf)] : []),
     ]);
     return registro;
   },
@@ -94,11 +94,11 @@ const repositorioSupabase: RepositorioContratos = {
       if (error) throw new Error(`Não foi possível guardar o ${ext.toUpperCase()}: ${error.message}`);
     };
     await envio("docx", novo.docx, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-    await envio("pdf", novo.pdf, "application/pdf");
+    if (novo.pdf) await envio("pdf", novo.pdf, "application/pdf");
     const { data, error } = await supabase.from("contratos").insert({
       id, workspace_id: sessao.workspaceId, molde: novo.molde, titulo: novo.titulo, tipo_imovel: novo.tipoImovel,
       valor_centavos: novo.valorCentavos, data_assinatura: novo.dataAssinatura, dados: novo.dados, pendencias: novo.pendenciasEmpresa,
-      docx_path: `${base}.docx`, pdf_path: `${base}.pdf`, criado_por: sessao.id, criado_por_nome: sessao.nome,
+      docx_path: `${base}.docx`, pdf_path: novo.pdf ? `${base}.pdf` : null, criado_por: sessao.id, criado_por_nome: sessao.nome,
     }).select().single();
     if (error) throw new Error(`Não foi possível registrar o contrato: ${error.message}`);
     return linhaParaRegistro(data);
@@ -113,7 +113,9 @@ const repositorioSupabase: RepositorioContratos = {
     const supabase = await clienteSupabase();
     const { data: l } = await supabase.from("contratos").select("*").eq("id", id).maybeSingle();
     if (!l) return null; // sem acesso (RLS) ou não existe
-    const { data: arq, error } = await supabase.storage.from("contratos").download(formato === "pdf" ? l.pdf_path : l.docx_path);
+    const caminho = formato === "pdf" ? l.pdf_path : l.docx_path;
+    if (!caminho) return null;
+    const { data: arq, error } = await supabase.storage.from("contratos").download(caminho);
     if (error || !arq) return null;
     return { registro: linhaParaRegistro(l), arquivo: Buffer.from(await arq.arrayBuffer()) };
   },

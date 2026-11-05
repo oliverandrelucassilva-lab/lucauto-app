@@ -1,5 +1,8 @@
 # Como o PDF é gerado (e o que falta para funcionar online)
 
+## Decisão atual: Word primeiro
+Online, o app entrega o **Word** (idêntico ao modelo da Lucauto) e **não mostra o botão de PDF**. Quem precisa do PDF abre o Word e usa **Arquivo → Salvar como → PDF** (no celular, **Compartilhar → Exportar como PDF**). Como o PDF sai do próprio Word, ele fica igual ao contrato. Não custa nada e não precisa de servidor. O PDF automático pode ser ligado depois, sem mudar mais nada (opção A abaixo). Controle: `PDF_CONVERSOR=nenhum` (padrão na Vercel).
+
 ## Como funciona hoje
 1. O app preenche o **Word da Lucauto** (o modelo com marcadores) com os dados digitados.
 2. Um programa gratuito chamado **LibreOffice** abre esse Word e o salva como PDF. É o mesmo programa usado nas validações página por página, então o PDF sai com o logo, a marca d'água e o rodapé do modelo.

@@ -30,7 +30,6 @@ export async function POST(req: Request) {
       // Demonstração: devolve os arquivos na hora e não guarda nada.
       return NextResponse.json({ demo: true, docx: g.docx.toString("base64"), pdf: g.pdf?.toString("base64") ?? null, pendenciasEmpresa: g.pendenciasEmpresa });
     }
-    if (!g.pdf) throw new Error("PDF não gerado");
     const registro = await repositorio().salvar(sessao, {
       molde: molde.slug,
       titulo: g.titulo,

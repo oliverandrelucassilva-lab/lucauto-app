@@ -12,8 +12,13 @@ import crypto from "node:crypto";
  * precisa rodar num serviço próprio. Está pronto para o Gotenberg
  * (https://gotenberg.dev): defina PDF_CONVERSOR=gotenberg e GOTENBERG_URL.
  */
+/** "nenhum" = só Word (a pessoa usa "Salvar como PDF" no Word). É o padrão quando o app roda na Vercel. */
+export const modoPdf = () => process.env.PDF_CONVERSOR ?? (process.env.VERCEL ? "nenhum" : "libreoffice");
+export const pdfDisponivel = () => modoPdf() !== "nenhum";
+
 export async function converterParaPdf(docx: Buffer): Promise<Buffer> {
-  const modo = process.env.PDF_CONVERSOR ?? "libreoffice";
+  const modo = modoPdf();
+  if (modo === "nenhum") throw new Error("A geração de PDF está desligada. Use o Word e \"Salvar como PDF\".");
   if (modo === "gotenberg") return viaGotenberg(docx);
   if (modo === "libreoffice") return viaLibreOffice(docx);
   throw new Error(`PDF_CONVERSOR desconhecido: ${modo}`);
