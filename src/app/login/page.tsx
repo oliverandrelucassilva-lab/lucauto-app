@@ -1,0 +1,24 @@
+import type { Metadata } from "next";
+import { modoAuth, USUARIOS_MOCK } from "@/lib/auth/mock";
+import { NOME_PERFIL } from "@/lib/auth/tipos";
+import { FormularioLogin } from "./FormularioLogin";
+
+export const metadata: Metadata = { title: "Entrar" };
+
+export default function Login() {
+  const mock = modoAuth() === "mock";
+  return (
+    <main className="grid min-h-dvh place-items-center bg-marinho px-4 py-10">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl sm:p-8">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-provisorio.png" alt="Lucauto Empreendimentos Imobiliários" className="mx-auto mb-5 h-10 w-auto" />
+        <h1 className="mb-1 text-center font-display text-2xl font-bold">Entrar no sistema</h1>
+        <p className="mb-6 text-center text-sm text-marinho/70">Sistema interno da Lucauto.</p>
+        <FormularioLogin
+          mock={mock}
+          pessoas={mock ? (Object.keys(USUARIOS_MOCK) as (keyof typeof USUARIOS_MOCK)[]).map((p) => ({ perfil: p, nome: USUARIOS_MOCK[p].nome, papel: NOME_PERFIL[p] })) : []}
+        />
+      </div>
+    </main>
+  );
+}

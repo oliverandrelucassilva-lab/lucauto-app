@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+@theme {
+  --color-marinho: #0b1f3a;
+  --color-marinho-escuro: #07142a;
+  --color-marinho-claro: #12294a;
+  --color-dourado: #c9a24a;
+  --color-dourado-claro: #e0be6a;
+  --color-papel: #f4f5f8;
+  --color-aviso: #ffe08a;
+  --font-display: "Playfair Display Variable", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+body {
+  background: var(--color-papel);
+  color: var(--color-marinho);
+  font-family: var(--font-sans);
+}
+
+/* Botão principal: dourado com texto marinho, 52 px de altura */
+.btn-principal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 52px;
+  padding: 0 1.5rem;
+  border-radius: 0.75rem;
+  background: var(--color-dourado);
+  color: var(--color-marinho);
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-principal:hover:not(:disabled) { background: var(--color-dourado-claro); }
+.btn-principal:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-principal:focus-visible, .btn-secundario:focus-visible { outline: 3px solid var(--color-marinho); outline-offset: 2px; }
+
+.btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  border: 2px solid var(--color-marinho);
+  color: var(--color-marinho);
+  font-weight: 700;
+  background: white;
+  cursor: pointer;
+}
+.btn-secundario:hover { background: var(--color-papel); }
+
+.campo {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #c3cbd8;
+  border-radius: 0.6rem;
+  background: white;
+  color: var(--color-marinho);
+  font: inherit;
+  font-size: 1rem; /* 16px: evita o zoom do celular */
+}
+.campo:focus { outline: 2px solid var(--color-dourado); border-color: var(--color-dourado); }
+.campo[aria-invalid="true"] { border-color: #b45309; }
+
+/* Prévia do contrato */
+.folha { background: white; color: #111; font-family: Arial, Helvetica, sans-serif; font-size: 12pt; line-height: 1.5; padding: 2.2rem 2.4rem; box-shadow: 0 2px 14px rgba(0,0,0,.14); }
+.folha p { margin: 0 0 0.5rem; }
+.folha mark { background: var(--color-aviso); color: #5a3d00; padding: 0 3px; border-radius: 3px; }
+@media (max-width: 640px) { .folha { padding: 1.2rem 1rem; font-size: 11pt; } }
