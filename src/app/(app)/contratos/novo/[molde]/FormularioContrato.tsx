@@ -3,10 +3,13 @@ import { AlertCircle, Check, ChevronLeft, ChevronRight, Download, Loader2 } from
 import { useMemo, useState } from "react";
 import { PreviaPaginada } from "@/components/contratos/PreviaPaginada";
 import { Botao } from "@/components/ui/Botao";
+import { Combobox, type Opcao } from "@/components/ui/Combobox";
 import { Cartao } from "@/components/ui/Cartao";
 import type { ConfigEmpresa } from "@/config/empresa";
 import { ETAPAS_MOLDE_1, type Campo } from "@/lib/contratos/campos";
 import { montarDados } from "@/lib/contratos/dados";
+import { aplicarMascara, normalizar } from "@/lib/contratos/formatos";
+import { BANCOS, CARTORIOS, ESTADO_CIVIL, ESTADOS, PROFISSOES } from "@/lib/contratos/sugestoes";
 import type { ParagrafoModelo } from "@/lib/contratos/modelo";
 
 interface Props {
@@ -105,8 +108,8 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
               </div>
               <div className="space-y-4">
                 {atual.campos.map((c) => (
-                  <CampoForm key={c.chave} campo={c} valor={valores[c.chave] ?? ""} extenso={c.tipo === "dinheiro" ? dados.valor_extenso : ""} comissao={c.tipo === "tipo_imovel" ? dados.comissao_pct : ""}
-                    erro={tocados.has(c.chave) ? problemaDe(c.chave)?.motivo : undefined} onChange={(v) => mudar(c.chave, v)} onBlur={() => tocar(c.chave)} />
+                  <CampoForm key={c.chave} campo={c} valor={valores[c.chave] ?? ""} valores={valores} mudarOutro={mudar} extenso={c.tipo === "dinheiro" ? dados.valor_extenso : ""} comissao={c.tipo === "tipo_imovel" ? dados.comissao_pct : ""}
+                    erro={tocados.has(c.chave) ? problemaDe(c.chave)?.motivo : undefined} onChange={(v) => mudar(c.chave, aplicarMascara(c.mascara, v))} onBlur={() => tocar(c.chave)} />
                 ))}
               </div>
             </>
@@ -162,9 +165,57 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
   );
 }
 
-function CampoForm({ campo, valor, extenso, comissao, erro, onChange, onBlur }: { campo: Campo; valor: string; extenso: string; comissao: string; erro?: "faltando" | "invalido"; onChange: (v: string) => void; onBlur: () => void }) {
+// ---------- sugestões ----------
+type Municipio = { nome: string; uf: string; chave: string };
+let cacheMunicipios: Municipio[] | null = null;
+async function carregarMunicipios(): Promise<Municipio[]> {
+  if (cacheMunicipios) return cacheMunicipios;
+  const dados = (await import("@/data/municipios.json")).default as Record<string, string[]>;
+  cacheMunicipios = Object.entries(dados).flatMap(([uf, nomes]) => nomes.map((nome) => ({ nome, uf, chave: normalizar(nome) })));
+  return cacheMunicipios;
+}
+
+function filtrar(itens: Opcao[], consulta: string, max = 8): Opcao[] {
+  const q = normalizar(consulta);
+  if (!q) return itens.slice(0, max);
+  const comeca: Opcao[] = [], contem: Opcao[] = [];
+  for (const o of itens) {
+    const alvo = normalizar(o.valor + " " + (o.detalhe ?? ""));
+    if (normalizar(o.valor).startsWith(q)) comeca.push(o);
+    else if (alvo.includes(q)) contem.push(o);
+  }
+  return [...comeca, ...contem].slice(0, max);
+}
+
+const comoOpcoes = (l: string[]): Opcao[] => l.map((valor) => ({ valor }));
+
+function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, erro, onChange, onBlur }: { campo: Campo; valor: string; valores: Record<string, string>; mudarOutro: (chave: string, v: string) => void; extenso: string; comissao: string; erro?: "faltando" | "invalido"; onChange: (v: string) => void; onBlur: () => void }) {
+  const [municipios, setMunicipios] = useState<Municipio[]>(cacheMunicipios ?? []);
   const id = `campo-${campo.chave}`;
   const comum = { id, value: valor, onBlur, "aria-invalid": erro ? true : undefined, "aria-describedby": `${id}-dica`, onChange: (e: { target: { value: string } }) => onChange(e.target.value) } as const;
+
+  // O que aparece na lista de cada campo com sugestões
+  function buscar(q: string): Opcao[] {
+    switch (campo.sugestoes) {
+      case "estado_civil": return filtrar(comoOpcoes(ESTADO_CIVIL), q);
+      case "profissao": return filtrar(comoOpcoes(PROFISSOES), q);
+      case "banco": return filtrar(comoOpcoes(BANCOS), q);
+      case "cartorio": return filtrar(comoOpcoes(CARTORIOS), q);
+      case "estado": return filtrar(ESTADOS.map((e) => ({ valor: e.nome, detalhe: e.uf })), q, 10);
+      case "favorecido": return valores.proprietario_nome?.trim() ? filtrar([{ valor: valores.proprietario_nome.trim(), detalhe: "proprietário" }], q.trim() === valores.proprietario_nome.trim() ? "" : q) : [];
+      case "cidade": {
+        const ufAtual = ESTADOS.find((e) => normalizar(e.nome) === normalizar(valores.proprietario_uf ?? ""))?.uf;
+        const nq = normalizar(q);
+        if (nq.length < 2) return [];
+        // cidades do estado escolhido primeiro, depois as de outros estados
+        const achadas = municipios.filter((m) => m.chave.startsWith(nq) || m.chave.includes(" " + nq));
+        // nome exato primeiro, depois as do estado escolhido, depois as que começam com o que foi digitado (nomes curtos antes)
+        achadas.sort((a, b) => Number(b.chave === nq) - Number(a.chave === nq) || Number(b.uf === ufAtual) - Number(a.uf === ufAtual) || Number(b.chave.startsWith(nq)) - Number(a.chave.startsWith(nq)) || a.chave.length - b.chave.length);
+        return achadas.slice(0, 8).map((m) => ({ valor: m.nome, detalhe: m.uf, dados: m.uf }));
+      }
+      default: return [];
+    }
+  }
 
   let entrada: React.ReactNode;
   if (campo.tipo === "tipo_imovel") {
@@ -177,12 +228,24 @@ function CampoForm({ campo, valor, extenso, comissao, erro, onChange, onBlur }: 
         ))}
       </div>
     );
+  } else if (campo.sugestoes) {
+    entrada = (
+      <Combobox id={id} value={valor} onChange={onChange} buscar={buscar} invalido={!!erro} descritoPor={`${id}-dica`} onBlur={onBlur}
+        mostrarAoFocar={campo.sugestoes !== "cidade" && campo.sugestoes !== "profissao"}
+        onFocar={() => { if (campo.sugestoes === "cidade" && !cacheMunicipios) carregarMunicipios().then(setMunicipios); else if (campo.sugestoes === "cidade") setMunicipios(cacheMunicipios!); }}
+        onEscolher={(o) => {
+          // escolher a cidade preenche o estado sozinho
+          if (campo.sugestoes === "cidade" && typeof o.dados === "string") { const e = ESTADOS.find((x) => x.uf === o.dados); if (e) mudarOutro("proprietario_uf", e.nome); }
+        }} />
+    );
   } else if (campo.tipo === "area") {
     entrada = <textarea {...comum} rows={5} className="campo" />;
   } else {
-    const tipo = campo.tipo === "data" ? "date" : campo.tipo === "email" ? "email" : campo.tipo === "telefone" ? "tel" : "text";
-    const modo = campo.tipo === "dinheiro" ? "decimal" : campo.tipo === "cpf" ? "numeric" : undefined;
-    entrada = <input {...comum} type={tipo} inputMode={modo} autoComplete="off" className="campo" />;
+    const tipo = campo.tipo === "data" ? "date" : campo.tipo === "email" ? "email" : "text";
+    const modo = campo.tipo === "dinheiro" ? "decimal" : ["cpf", "telefone", "cep", "numero"].includes(campo.tipo) ? "numeric" : undefined;
+    const hoje = new Date().toISOString().slice(0, 10);
+    const limites = campo.chave === "proprietario_nascimento" ? { min: "1900-01-01", max: hoje } : campo.tipo === "data" ? { min: "2000-01-01" } : {};
+    entrada = <input {...comum} {...limites} type={tipo} inputMode={modo} autoComplete={campo.tipo === "email" ? "email" : "off"} className="campo" />;
   }
   return (
     <div>
@@ -195,7 +258,7 @@ function CampoForm({ campo, valor, extenso, comissao, erro, onChange, onBlur }: 
       {extenso && <p className="mt-1.5 text-sm font-medium text-slate-700">{extenso}</p>}
       {comissao && <p className="mt-1.5 text-xs text-suave">Comissão deste contrato: {comissao}%.</p>}
       <p id={`${id}-dica`} className={`mt-1.5 text-xs ${erro ? "text-red-600" : "text-suave"}`}>
-        {erro === "faltando" ? `Preencha o campo ${campo.rotulo}.` : erro === "invalido" ? `Confira o campo ${campo.rotulo}: o valor não parece correto.` : campo.dica ?? ""}
+        {erro === "faltando" ? `Preencha o campo ${campo.rotulo}.` : erro === "invalido" ? (campo.erroInvalido ?? `Confira o campo ${campo.rotulo}: o valor não parece correto.`) : campo.dica ?? ""}
       </p>
     </div>
   );
