@@ -27,7 +27,7 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
   const [aba, setAba] = useState<"preencher" | "previa">("preencher");
   const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState("");
-  const [pronto, setPronto] = useState<{ id: string; pendencias: string[] } | null>(null);
+  const [pronto, setPronto] = useState<{ docx: string; pdf: string | null; pendencias: string[]; demo: boolean } | null>(null);
 
   const { dados, problemas, pendenciasEmpresa } = useMemo(() => montarDados(valores, empresa), [valores, empresa]);
   const problemaDe = (chave: string) => problemas.find((p) => p.chave === chave);
@@ -41,7 +41,12 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
       const resp = await fetch("/api/contratos/gerar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ molde: slug, dados: valores }) });
       const json = await resp.json();
       if (!resp.ok) throw new Error(json.erro ?? "Não foi possível gerar o contrato.");
-      setPronto({ id: json.id, pendencias: json.pendenciasEmpresa ?? [] });
+      if (json.demo) {
+        const url = (b64: string, tipo: string) => URL.createObjectURL(new Blob([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))], { type: tipo }));
+        setPronto({ demo: true, pendencias: json.pendenciasEmpresa ?? [], docx: url(json.docx, "application/vnd.openxmlformats-officedocument.wordprocessingml.document"), pdf: json.pdf ? url(json.pdf, "application/pdf") : null });
+      } else {
+        setPronto({ demo: false, pendencias: json.pendenciasEmpresa ?? [], docx: `/api/contratos/${json.id}/docx`, pdf: `/api/contratos/${json.id}/pdf` });
+      }
     } catch (e) {
       setErro(e instanceof Error ? e.message : "Não foi possível gerar o contrato.");
     } finally {
@@ -84,10 +89,14 @@ export function FormularioContrato({ slug, paragrafos, inicial, empresa }: Props
               <p className="font-bold text-emerald-900">Contrato gerado.</p>
               {pronto.pendencias.length > 0 && <p className="text-sm">Atenção: saiu com [A CONFIRMAR] em {pronto.pendencias.join(", ")}.</p>}
               <div className="grid grid-cols-2 gap-2">
-                <a className="btn-principal" href={`/api/contratos/${pronto.id}/docx`}>Baixar Word</a>
-                <a className="btn-principal" href={`/api/contratos/${pronto.id}/pdf`}>Baixar PDF</a>
+                <a className="btn-principal" href={pronto.docx} download="contrato.docx">Baixar Word</a>
+                {pronto.pdf ? (
+                  <a className="btn-principal" href={pronto.pdf} download="contrato.pdf">Baixar PDF</a>
+                ) : (
+                  <span className="grid min-h-[52px] place-items-center rounded-xl bg-marinho/10 px-2 text-center text-xs font-bold">PDF em breve (serviço de conversão ainda não ligado)</span>
+                )}
               </div>
-              <Link href="/contratos" className="block text-center text-sm underline">Ver todos os contratos</Link>
+              {pronto.demo ? <p className="text-center text-xs">Demonstração: este contrato não foi guardado no histórico.</p> : <Link href="/contratos" className="block text-center text-sm underline">Ver todos os contratos</Link>}
             </div>
           ) : (
             <button type="button" className="btn-principal w-full" disabled={problemas.length > 0 || gerando} onClick={gerar}>

@@ -12,18 +12,23 @@ export class DadosIncompletos extends Error {
 
 export interface ContratoGerado {
   docx: Buffer;
-  pdf: Buffer;
+  pdf: Buffer | null;
   dados: Record<string, string>;
   pendenciasEmpresa: string[];
 }
 
 /** Valida, preenche o Word e converte para PDF. Só gera com tudo preenchido. */
-export async function gerarContrato(slug: string, entrada: Entrada): Promise<ContratoGerado> {
+export async function gerarContrato(slug: string, entrada: Entrada, opcoes: { pdfOpcional?: boolean } = {}): Promise<ContratoGerado> {
   const molde = moldePorSlug(slug);
   if (!molde || !molde.ativo) throw new Error("Este molde ainda não está disponível.");
   const { dados, problemas, pendenciasEmpresa } = montarDados(entrada, configEmpresa());
   if (problemas.length) throw new DadosIncompletos(problemas);
   const docx = gerarDocx(slug, dados);
-  const pdf = await converterParaPdf(docx);
+  let pdf: Buffer | null = null;
+  try {
+    pdf = await converterParaPdf(docx);
+  } catch (e) {
+    if (!opcoes.pdfOpcional) throw e;
+  }
   return { docx, pdf, dados, pendenciasEmpresa };
 }

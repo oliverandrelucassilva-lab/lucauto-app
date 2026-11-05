@@ -13,7 +13,7 @@ export async function entrar(_: EstadoLogin, form: FormData): Promise<EstadoLogi
   if (modoAuth() === "mock") {
     const perfil = String(form.get("perfil")) as Perfil;
     if (!["gerente", "corretor", "marketing"].includes(perfil)) return { erro: "Escolha uma pessoa para entrar." };
-    (await cookies()).set(COOKIE_MOCK, criarCookieMock(perfil), { httpOnly: true, sameSite: "lax", path: "/", secure: false });
+    (await cookies()).set(COOKIE_MOCK, criarCookieMock(perfil), { httpOnly: true, sameSite: "lax", path: "/", secure: process.env.NODE_ENV === "production" });
     redirect("/");
   }
   const email = String(form.get("email") ?? "").trim();

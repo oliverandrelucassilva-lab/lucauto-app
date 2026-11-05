@@ -4,16 +4,17 @@ import { entrar, type EstadoLogin } from "./actions";
 
 interface Props {
   mock: boolean;
+  demo?: boolean;
   pessoas: { perfil: string; nome: string; papel: string }[];
 }
 
-export function FormularioLogin({ mock, pessoas }: Props) {
+export function FormularioLogin({ mock, demo, pessoas }: Props) {
   const [estado, acao, pendente] = useActionState<EstadoLogin, FormData>(entrar, {});
   return (
     <form action={acao} className="space-y-4">
       {mock ? (
         <fieldset>
-          <legend className="mb-2 rounded-lg bg-aviso/70 px-3 py-2 text-sm">Modo de teste: escolha uma pessoa fictícia. Não há senha.</legend>
+          <legend className="mb-2 rounded-lg bg-aviso/70 px-3 py-2 text-sm">{demo ? "Modo de demonstração: escolha uma pessoa fictícia. Use só dados de teste; nada é guardado." : "Modo de teste: escolha uma pessoa fictícia. Não há senha."}</legend>
           <div className="space-y-2">
             {pessoas.map((p, i) => (
               <label key={p.perfil} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-marinho/20 px-3 has-[:checked]:border-dourado has-[:checked]:bg-dourado/10">
