@@ -65,7 +65,15 @@ export const ENTRADA_COMPRA_VENDA: Record<string, string> = {
   valor: "350.000,00", sinal: "10.000,00", data_sinal: "2026-11-20", saldo: "", forma_pagamento: "avista", forma_outra: "", data_assinatura: "2026-11-05",
 };
 
+/** Sinal e reserva (molde 5), tudo fictício. */
+export const ENTRADA_SINAL: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(ENTRADA_COMPRA_VENDA).filter(([k]) => /^(vendedor|comprador)_/.test(k))),
+  tipo_imovel: "rural", imovel_endereco: "Fazenda Exemplo, Povoado Teste, Cidade Exemplo/BA",
+  sinal: "10.000,00", banco: "Banco Exemplo", agencia: "0000", favorecido: "Vendedora Exemplo de Teste", valor: "350.000,00", data_assinatura: "2026-11-05",
+};
+
 export const ENTRADAS: Record<string, Record<string, string>> = {
+  "5_sinal_e_reserva_venda_sem_escritura": ENTRADA_SINAL,
   "6_compra_e_venda": ENTRADA_COMPRA_VENDA,
   "1_intermediacao_com_exclusividade": ENTRADA_FICTICIA,
   "4_contrato_locacao_residencial": ENTRADA_LOCACAO,
@@ -74,6 +82,7 @@ export const ENTRADAS: Record<string, Record<string, string>> = {
 /** Dados para a validação visual de cada molde: textos do mesmo tamanho dos exemplos do Word original,
  *  para os dois documentos terem o mesmo fluxo de páginas. Tudo fictício. */
 export const VALIDACAO: Record<string, Record<string, string>> = {
+  "5_sinal_e_reserva_venda_sem_escritura": { ...ENTRADA_SINAL, imovel_endereco: "Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA" },
   "6_compra_e_venda": { ...ENTRADA_COMPRA_VENDA, imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, com 2 quartos e quintal" },
   "1_intermediacao_com_exclusividade": ENTRADA_VALIDACAO,
   "4_contrato_locacao_residencial": { ...ENTRADA_LOCACAO, imovel_endereco: "Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA, casa com 2 quartos" },

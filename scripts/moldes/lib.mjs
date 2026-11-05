@@ -113,3 +113,15 @@ export const pessoaPorCidade = (pre) =>
   `{${pre}_nome}, {${pre}_estado_civil}, {${pre}_profissao}, {${pre}_nascimento}, ` +
   `{#${pre}_rg}RG sob o nº {${pre}_rg} e {/${pre}_rg}CPF de nº {${pre}_cpf}, residente e domiciliado (a) na cidade de {${pre}_cidade}, {${pre}_uf}, ` +
   `CEP: {${pre}_cep}, telefone: {${pre}_telefone}, e-mail: {${pre}_email}`;
+
+/** Edição do parágrafo "[NOME, estado civil, ... e-mail:" (moldes 2, 5 e 6): vira os campos da pessoa `pre`. */
+export const editarParte = (pre) => (p) => {
+  p = substituir(p, "[NOME, estado civil, profissão, data de nascimento, RG sob o nº e CPF de nº", pessoaPorCidade(pre).split(", residente e domiciliado")[0]);
+  return substituir(p, /na cidade de\s+, Bahia, CEP: 48450-000, telefone:, e-mail:\s*$/, `na cidade de {${pre}_cidade}, {${pre}_uf}, CEP: {${pre}_cep}, telefone: {${pre}_telefone}, e-mail: {${pre}_email}`);
+};
+
+/** Edição do parágrafo da imobiliária: CNPJ, CRECI jurídico e CREC da corretora (moldes 2, 5 e 6). */
+export const editarImobiliaria = (p) => {
+  p = substituir(p, "CNPJ nº CRECI Jurídico nº", "CNPJ nº {empresa_cnpj} CRECI Jurídico nº {empresa_creci}");
+  return substituir(p, "POLLYANA MALTA MARQUES CUNHA, CREC nº:", "{corretora_nome}, CREC nº: {corretora_creci}");
+};
