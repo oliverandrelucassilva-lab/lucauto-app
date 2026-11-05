@@ -54,7 +54,19 @@ export const ENTRADA_LOCACAO: Record<string, string> = {
   prazo_meses: "12", data_inicio: "2026-11-05", data_fim: "", aluguel: "1.250,50", dia_vencimento: "5", data_assinatura: "2026-11-05",
 };
 
+/** Compra e venda (molde 6), tudo fictício. */
+export const ENTRADA_COMPRA_VENDA: Record<string, string> = {
+  ...Object.fromEntries(Object.entries(ENTRADA_FICTICIA).filter(([k]) => k.startsWith("proprietario_")).map(([k, v]) => [k.replace("proprietario_", "vendedor_"), v])),
+  vendedor_nome: "Vendedora Exemplo de Teste",
+  ...Object.fromEntries(Object.entries(ENTRADA_FICTICIA).filter(([k]) => k.startsWith("proprietario_")).map(([k, v]) => [k.replace("proprietario_", "comprador_"), v])),
+  comprador_nome: "Comprador Exemplo de Teste", comprador_cpf: "529.982.247-25", comprador_email: "comprador@exemplo.test",
+  tipo_imovel: "urbano",
+  imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, matrícula nº 00.000, com 2 quartos, sala e cozinha, área total de 200m²",
+  valor: "350.000,00", sinal: "10.000,00", data_sinal: "2026-11-20", saldo: "", forma_pagamento: "avista", forma_outra: "", data_assinatura: "2026-11-05",
+};
+
 export const ENTRADAS: Record<string, Record<string, string>> = {
+  "6_compra_e_venda": ENTRADA_COMPRA_VENDA,
   "1_intermediacao_com_exclusividade": ENTRADA_FICTICIA,
   "4_contrato_locacao_residencial": ENTRADA_LOCACAO,
 };
@@ -62,6 +74,7 @@ export const ENTRADAS: Record<string, Record<string, string>> = {
 /** Dados para a validação visual de cada molde: textos do mesmo tamanho dos exemplos do Word original,
  *  para os dois documentos terem o mesmo fluxo de páginas. Tudo fictício. */
 export const VALIDACAO: Record<string, Record<string, string>> = {
+  "6_compra_e_venda": { ...ENTRADA_COMPRA_VENDA, imovel_descricao: "Casa de teste na Rua Exemplo, nº 10, Bairro Teste, com 2 quartos e quintal" },
   "1_intermediacao_com_exclusividade": ENTRADA_VALIDACAO,
   "4_contrato_locacao_residencial": { ...ENTRADA_LOCACAO, imovel_endereco: "Rua Exemplo, nº 10, Bairro Teste, Cidade Exemplo/BA, casa com 2 quartos" },
 };

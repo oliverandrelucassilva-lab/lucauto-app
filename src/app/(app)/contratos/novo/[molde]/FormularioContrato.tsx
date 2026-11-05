@@ -279,7 +279,7 @@ function CampoForm({ campo, valor, valores, mudarOutro, extenso, comissao, suger
       {entrada}
       {extenso && <p className="mt-1.5 text-sm font-medium text-slate-700">{extenso}</p>}
       {comissao && <p className="mt-1.5 text-xs text-suave">Comissão deste contrato: {comissao}%.</p>}
-      {sugerido && !valor && <p className="mt-1.5 text-xs font-medium text-slate-700">Calculado automaticamente: {sugerido.split("-").reverse().join("/")}. Preencha só se quiser outra data.</p>}
+      {sugerido && !valor && <p className="mt-1.5 text-xs font-medium text-slate-700">Calculado automaticamente: {campo.tipo === "data" ? sugerido.split("-").reverse().join("/") : `R$ ${sugerido}`}. Preencha só se quiser outro valor.</p>}
       <p id={`${id}-dica`} className={`mt-1.5 text-xs ${erro ? "text-red-600" : "text-suave"}`}>
         {erro === "faltando" ? `Preencha o campo ${campo.rotulo}.` : erro === "invalido" ? (mensagem ?? campo.erroInvalido ?? `Confira o campo ${campo.rotulo}: o valor não parece correto.`) : campo.dica ?? ""}
       </p>

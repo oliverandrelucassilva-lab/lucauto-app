@@ -111,6 +111,7 @@ export function montarDados(slug: string, entrada: Entrada, empresa: ConfigEmpre
     else if (c.tipo === "cpf") dados[c.chave] = formatarCpf(v);
     else if (c.tipo === "telefone") dados[c.chave] = mascaraTelefone(v);
     else if (c.tipo === "cep") dados[c.chave] = mascaraCep(v);
+    else if (c.semPontoFinal) dados[c.chave] = v.replace(/[.;\s]+$/, "");
     else if (c.tipo === "dinheiro") {
       const cents = lerValor(v);
       dados[c.chave] = cents ? formatarBRL(cents) : "";

@@ -23,6 +23,8 @@ export interface Campo {
   dependeDe?: string;
   /** Opções fixas, para tipo "opcoes" (valor, rótulo). */
   opcoes?: { valor: string; rotulo: string }[];
+  /** Tira o ponto final digitado, porque o modelo já tem um ponto depois do campo. */
+  semPontoFinal?: boolean;
   /** Como a data sai no contrato: "curta" (01/02/2026) ou "extenso" (01 de fevereiro de 2026). */
   saida?: "curta" | "extenso";
 }
