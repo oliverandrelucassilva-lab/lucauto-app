@@ -25,7 +25,8 @@ npm run test:visual    # gera saida-teste/ para comparar original × gerado pág
 
 - `moldes/originais/`: os Word da Lucauto, sem nenhuma alteração.
 - `moldes/modelos/`: os mesmos arquivos com marcadores `{assim}` nos trechos variáveis. Para mudar uma cláusula, edite o Word do modelo (mantenha os marcadores).
-- `npm run molde:preparar` refaz o modelo 1 a partir do original; `npm run molde:conferir` mostra o que mudou.
+- `npm run molde:preparar` refaz os modelos a partir dos originais (uma configuração por molde em `scripts/moldes/`). `npm run molde:ler -- <molde>` lista os parágrafos; `npm run molde:fundo -- <molde>` gera o fundo da prévia.
+- Moldes prontos: 1 a 6 (todos). O texto é literal: o modelo não acrescenta nenhuma palavra ao original (há teste automático).
 
 ## Produção
 
@@ -33,4 +34,4 @@ npm run test:visual    # gera saida-teste/ para comparar original × gerado pág
 - **Banco:** aplicar `supabase/migrations/` num projeto Supabase novo, em nome da Lucauto. Desligar o cadastro público (signup); entrar só por convite. Ativar backup diário.
 - `AUTH_MODE=supabase`. O login de teste é recusado em produção.
 
-Veja `docs/PLANO.md` e `docs/PENDENCIAS.md`.
+Veja `docs/RESUMO_PARA_CLAUDE_CHAT.md` (visão geral e pendências), `docs/PDF_EM_PRODUCAO.md`, `docs/PLANO.md` e `docs/PENDENCIAS.md`.
