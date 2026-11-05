@@ -132,7 +132,7 @@ Dois escopos, com as mesmas regras de acesso do banco:
 | 1 | Imóveis (código LUC, fotos, planilha, situação) + contrato puxa o imóvel | Fase 0; formato da planilha/link do n8n |
 | 2 | Eventos + Painel v1 (imóveis e contratos) | Fase 1; os "10 números" |
 | 3 | n8n lê imóveis e grava eventos; fotos no WhatsApp | Fluxo atual do n8n; canal de WhatsApp |
-| 4 | CRM: leads/funil no Painel; contrato pré-preenchido do CRM | Resposta do fornecedor do CRM |
+| 4 | CRM: coexistir com o CV (leads/funil no Painel; contrato pré-preenchido) e, depois, absorver partes (seção 14) | Resposta do fornecedor do CRM; levantamento do que a equipe usa |
 | 5 | Modelos salvos, colaboração, lembretes, assinatura digital | Fases 0 a 2 |
 
 ## 13. Como isso agrega valor ao produto
@@ -140,6 +140,28 @@ Dois escopos, com as mesmas regras de acesso do banco:
 - O **Painel confiável** (com lista por trás de cada número) é o que o dono realmente usa e valoriza.
 - **Menos digitação** (CRM → contrato; imóvel → contrato; contrato → situação do imóvel → WhatsApp parou de oferecer o imóvel vendido).
 - Alertas proativos (reserva vencendo, contrato sem assinatura) que evitam perder negócio.
+
+## 14. Substituir o CRM atual (CV) pelo nosso? Caminho recomendado
+**Resumo:** tecnicamente é possível, porque o app já tem a base (pessoas, imóveis, contratos, perfis, eventos). Mas **não prometer a substituição agora**: ainda não sabemos o que a equipe usa no CV, e um CRM de imobiliária é um produto grande. A recomendação é chegar lá **por etapas**, e a decisão final de substituir é do dono/Lucas (escopo, prazo e preço ficam fora destes arquivos).
+
+**O que o app já tem de base:** cadastro de pessoas e imóveis, contratos, perfis (gerente, corretor, marketing), histórico de eventos, ligação com WhatsApp/n8n.
+**O que faltaria para ser um CRM:** leads com origem e responsável, funil por etapas (kanban), visitas e tarefas com lembretes, anotações e histórico por cliente e por imóvel, relatórios do funil.
+**O que costuma dar mais trabalho** (e pode já existir no CV e ser usado pela equipe): receber leads de portais e anúncios; distribuir leads entre corretores; caixa de entrada de WhatsApp compartilhada pela equipe; aplicativo de celular; relatórios avançados; suporte quando algo falha.
+
+**Caminho em 3 etapas**
+1. **Coexistir:** integrar com o CV (API/webhooks via n8n) ou importar relatórios, para o Painel e os contratos já usarem os dados dele. Nada muda para a equipe.
+2. **Absorver:** criar no nosso app, por partes, só o que a equipe realmente usa (primeiro um funil simples ligado ao imóvel LUC-xxx; depois visitas e tarefas; depois a caixa de WhatsApp). Cada parte entra quando for **melhor** que o uso no CV.
+3. **Substituir:** apenas quando o nosso cobrir o que eles usam e a equipe aprovar. A Lucauto decide cancelar o CV.
+
+**O que descobrir antes de decidir (levar ao Denilson):**
+1. O que a equipe faz no CV numa semana normal: cadastra lead, move etapa, agenda visita, anota, vê relatório, recebe lead de portal, distribui lead?
+2. Quem usa e quanto depende: todos os corretores ou só alguns? Alguém da gestão olha relatórios?
+3. De onde vêm os leads hoje (portais, site, WhatsApp, indicação)?
+4. O contrato com o CV tem prazo ou fidelidade? O CV permite **exportar** todos os dados (clientes, leads, histórico)? Sem exportação, a migração fica inviável ou incompleta.
+5. O CV é também usado por parceiros (construtoras/incorporadoras) em algum processo da Lucauto?
+**Critérios para dar o "sim" à substituição:** a equipe consegue fazer o mesmo (ou mais) no nosso app; os dados antigos foram migrados e conferidos; o nosso app funciona bem no celular; há suporte combinado; a Lucauto aprovou por escrito.
+
+**Por que esse caminho é bom para o produto:** a Lucauto nunca fica no escuro, o risco é pequeno e cada etapa já entrega valor. E o que for construído para a Lucauto (funil, visitas, tarefas) pode ser oferecido a outras imobiliárias (cada uma é um "espaço" no sistema).
 
 ## Fontes consultadas
 - [Integração CV e Sienge (central de ajuda do CV)](https://ajuda.cvcrm.com.br/support/solutions/articles/157000357155): menciona webhooks; a configuração é feita pela equipe do CV.
