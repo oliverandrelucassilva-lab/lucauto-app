@@ -32,7 +32,7 @@ export default async function Inicio(props: PageProps<"/">) {
       <section aria-label="Atalhos rápidos" className="grid gap-4 sm:grid-cols-2">
         {ve && (
           <Cartao className="flex items-center gap-4 border-dourado/50 bg-dourado/10">
-            <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-dourado text-marinho"><FilePlus2 size={20} strokeWidth={1.75} aria-hidden="true" /></span>
+            <span className="grid size-11 shrink-0 place-items-center rounded-[10px] bg-dourado text-marinho-fixo"><FilePlus2 size={20} strokeWidth={1.75} aria-hidden="true" /></span>
             <div className="min-w-0 flex-1">
               <p className="text-base font-bold">Novo contrato</p>
               <p className="text-sm text-suave">Escolha o modelo e preencha os dados.</p>

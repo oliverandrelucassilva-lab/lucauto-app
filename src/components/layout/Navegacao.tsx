@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { sair } from "@/app/login/actions";
 import { IconePdf } from "@/components/IconePdf";
+import { Logo } from "@/components/Logo";
+import { SeletorTema } from "@/components/SeletorTema";
 import { Selo } from "@/components/ui/Selo";
 import { podeAcessar, type Modulo } from "@/lib/auth/permissoes";
 import type { Perfil } from "@/lib/auth/tipos";
@@ -25,12 +27,6 @@ const ITENS: Item[] = [
   { rotulo: "Automações", icone: Workflow, modulo: "automacoes" },
   { rotulo: "Configurações", href: "/configuracoes", icone: Settings, modulo: "configuracoes" },
 ];
-
-const Logo = ({ className = "" }: { className?: string }) => (
-  // Logo provisório (azul marinho), recortado do cabeçalho do contrato, até chegar o PNG oficial.
-  // eslint-disable-next-line @next/next/no-img-element
-  <img src="/logo-provisorio.png" alt="Lucauto" className={`w-auto ${className}`} />
-);
 
 export function Navegacao({ nome, perfil }: { nome: string; perfil: Perfil }) {
   const pathname = usePathname();
@@ -54,14 +50,14 @@ export function Navegacao({ nome, perfil }: { nome: string; perfil: Perfil }) {
         <button type="button" onClick={() => setAberto(true)} aria-label="Abrir menu" aria-expanded={aberto} className="grid size-11 place-items-center rounded-[10px] hover:bg-slate-100">
           <Menu size={20} strokeWidth={1.75} />
         </button>
-        <Link href="/" className="justify-self-center" aria-label="Início"><Logo className="h-5" /></Link>
+        <Link href="/" className="justify-self-center" aria-label="Início"><Logo claro="h-5" escuro="h-8" /></Link>
       </div>
 
       {aberto && <button type="button" aria-label="Fechar menu" onClick={() => setAberto(false)} className="fixed inset-0 z-40 bg-slate-900/40 lg:hidden" />}
 
       <aside aria-label="Menu principal" className={`fixed inset-y-0 left-0 z-50 flex w-[264px] flex-col border-r border-linha bg-white transition-transform duration-150 lg:translate-x-0 ${aberto ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex items-center justify-between px-6 pb-4 pt-7">
-          <Link href="/" aria-label="Início"><Logo className="h-6" /></Link>
+          <Link href="/" aria-label="Início"><Logo claro="h-6" escuro="h-9" /></Link>
           <button type="button" onClick={() => setAberto(false)} aria-label="Fechar menu" className="grid size-11 place-items-center rounded-[10px] hover:bg-slate-100 lg:hidden"><X size={20} strokeWidth={1.75} /></button>
         </div>
 
@@ -89,7 +85,11 @@ export function Navegacao({ nome, perfil }: { nome: string; perfil: Perfil }) {
           })}
         </nav>
 
-        <form action={sair} className="border-t border-linha p-4">
+        <div className="flex items-center justify-between gap-2 border-t border-linha px-4 pb-1 pt-3">
+          <span className="text-xs font-medium text-suave">Tema</span>
+          <SeletorTema />
+        </div>
+        <form action={sair} className="p-4 pt-2">
           <button type="submit" className="flex h-11 w-full items-center gap-3 rounded-[10px] px-3 text-sm font-medium text-slate-700 transition-colors duration-150 hover:bg-gray-100">
             <LogOut size={20} strokeWidth={1.75} aria-hidden="true" className="text-slate-500" />Sair
           </button>

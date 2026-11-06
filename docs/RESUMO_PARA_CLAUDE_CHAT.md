@@ -11,6 +11,7 @@ Regra principal desta etapa: o contrato gerado tem de sair **igual ao Word que a
 - Menu lateral, bloco do usuário, três perfis (gerente, corretor, marketing). Cada perfil só vê o que pode usar (menu e servidor).
 - Início (atalhos, contratos do mês e de hoje, últimos contratos), Gerador de PDFs, Configurações (dados da empresa, só leitura, só gerente).
 - Visual azul marinho e dourado, fonte única (Plus Jakarta Sans), botões de 44 px, funciona no celular.
+- **Modo escuro:** seletor Claro / Escuro / Automático (segue o aparelho) no menu e na tela de login; lembra a escolha; logo própria para fundo escuro. A página do contrato na prévia continua branca (é o documento).
 - Formulário em etapas (Partes, Imóvel/Valores, Revisar) com **prévia do contrato em páginas A4** (com logo, casinha dourada e rodapé), zoom e tela cheia.
 - Campos numéricos só aceitam números (telefone, CEP, CPF, RG, matrícula, agência, valor); e-mail de qualquer provedor; datas conferidas; CPF com dígito verificador.
 - Preenchimento automático: cidades do Brasil (IBGE; escolher a cidade preenche o estado), estados, estado civil, profissão, banco, cartório, nacionalidade, favorecido.
